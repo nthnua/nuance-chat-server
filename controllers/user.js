@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken')
 const Login = (req, res, next) => {
     const password = req.body.passphrase
     const hash = userdb.passphrase
-    //const saltRounds = 10
-    //bcrypt.hash(passphrase, saltRounds).then(hash => console.log(hash)).catch(err => console.error(err));
+    
+    //compare submitted password with stored one and return a jwt if valid
     bcrypt.compare(password, hash).then(result => {
         if (result) {
             const token = jwt.sign({
