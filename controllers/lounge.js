@@ -1,5 +1,22 @@
+const userdb = require('../data/users.json')
+const jwt = require('jsonwebtoken')
+
 const Lounge = (req, res, next) => {
-    console.log(req.headers.authorization)
+    if (req.userdata) {
+        console.log(req.userdata)
+        res.json({
+            contacts: [{
+                id: 1,
+                msgs_id: 2,
+                name: 'who'
+            },
+            {
+                id: 2,
+                msgs_id: 3,
+                name: 'whe'
+            }]
+        })
+    }
 }
 
 exports.lounge = Lounge

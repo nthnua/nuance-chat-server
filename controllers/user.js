@@ -6,7 +6,8 @@ const fs = require('fs')
 
 const Login = (req, res, next) => {
     const password = req.body.password
-    const hash = userdb.passphrase
+    const hash = userdb.password
+    const jwt_secret = process.env.AUTH_TOKEN_SECRET
 
     //compare submitted password with stored one and return a jwt if valid
     bcrypt.compare(password, hash).then(result => {
@@ -15,7 +16,7 @@ const Login = (req, res, next) => {
                 data: {
                     userid: userdb.id
                 }
-            }, 'secret', { expiresIn: '1h' })
+            }, jwt_secret, { expiresIn: '1h' })
             res.json({
                 token
             })
@@ -25,7 +26,7 @@ const Login = (req, res, next) => {
                 token: ''
             })
         }
-    })
+    }).catch(err => console.error(err))
 
 
 }
