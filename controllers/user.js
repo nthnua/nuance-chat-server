@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt')
 const userdb = require('../data/users.json')
 const jwt = require('jsonwebtoken')
+const fs = require('fs')
+
 
 const Login = (req, res, next) => {
     const password = req.body.password
@@ -33,9 +35,12 @@ const Signup = (req, res, next) => {
     const password = req.body.password
     const saltRounds = 10
     bcrypt.hash(password, saltRounds).then((hash) => {
-        console.log(hash)
+        userdb.username = username
+        userdb.password = hash
+        fs.writeFile('data/users.json', JSON.stringify(userdb), err => err ? console.error(err) : null)
     }).catch(err => console.error(err))
-
+    res.status(201)
 }
 
+exports.signup = Signup
 exports.login = Login
