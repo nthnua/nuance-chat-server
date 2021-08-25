@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 
-const login = require('./controllers/auth').login
+const login = require('./controllers/user').login
 
 const app = express()
 
