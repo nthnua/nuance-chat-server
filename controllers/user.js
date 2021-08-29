@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt')
 const userdb = require('../data/users.json')
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
+const User = require('../models/user')
 
 
 const Login = (req, res, next) => {
@@ -36,11 +37,20 @@ const Signup = (req, res, next) => {
     const password = req.body.password
     const saltRounds = 10
     bcrypt.hash(password, saltRounds).then((hash) => {
-        userdb.username = username
-        userdb.password = hash
-        fs.writeFile('data/users.json', JSON.stringify(userdb), err => err ? console.error(err) : null)
+        const user = new User(username, hash)
+        user.findMatch().then(result => {
+            if (result) {
+                console.log(result)
+                res.status(409).send('username already exists:(')
+            }
+            else {
+                user.save().then(result => {
+                    console.log(result)
+                    res.status(201).send('Success:)')
+                }).catch(err => console.err(err))
+            }
+        }).catch(err => console.log(err))
     }).catch(err => console.error(err))
-    res.status(201)
 }
 
 exports.signup = Signup
