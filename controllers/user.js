@@ -1,30 +1,45 @@
 const bcrypt = require('bcrypt')
-const userdb = require('../data/users.json')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 
 const Login = (req, res, next) => {
-  const password = req.body.password
-  const hash = userdb.password
   const tokenSecret = process.env.AUTH_TOKEN_SECRET
-
-  // compare submitted password with stored one and return a jwt if valid
-  bcrypt.compare(password, hash).then(result => {
-    if (result) {
-      const token = jwt.sign({
-        data: {
-          userid: userdb.id
+  const user = new User(req.body.username, req.body.password)
+  user.getUserCredentials().then(userCreds => {
+    if (userCreds) {
+      bcrypt.compare(user.password, userCreds.password).then(match => {
+        if (match) {
+          const token = jwt.sign({
+            userid: userCreds._id
+          }, tokenSecret, { expiresIn: '1h' })
+          res.json(token)
         }
-      }, tokenSecret, { expiresIn: '1h' })
-      res.json({
-        token
-      })
+      }).catch(err => console.log(err))
     } else {
-      res.status(401).json({
-        token: ''
-      })
+      res.status(404).send('User not found!')
     }
-  }).catch(err => console.error(err))
+  }).catch(err => console.log(err))
+  // const password = req.body.password
+  // const hash = userdb.password
+  // const tokenSecret = process.env.AUTH_TOKEN_SECRET
+
+  // // compare submitted password with stored one and return a jwt if valid
+  // bcrypt.compare(password, hash).then(result => {
+  //   if (result) {
+  //     const token = jwt.sign({
+  //       data: {
+  //         userid: userdb.id
+  //       }
+  //     }, tokenSecret, { expiresIn: '1h' })
+  //     res.json({
+  //       token
+  //     })
+  //   } else {
+  //     res.status(401).json({
+  //       token: ''
+  //     })
+  //   }
+  // }).catch(err => console.error(err))
 }
 
 const Signup = (req, res, next) => {

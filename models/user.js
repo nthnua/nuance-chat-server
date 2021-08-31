@@ -22,6 +22,17 @@ class User {
       }
     })
   }
+
+  getUserCredentials () {
+    const db = getDB()
+    return db.collection('users').findOne({
+      username: { $eq: this.username }
+    }, {
+      projection: {
+        password: 1
+      }
+    })
+  }
 }
 
 module.exports = User

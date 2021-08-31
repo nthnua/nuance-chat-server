@@ -20,6 +20,5 @@ app.post('/api/signup', signup)
 app.get('/api/lounge', auth, lounge)
 
 mongoConnect(client => {
-  console.log(client)
   app.listen(8000)
 })
