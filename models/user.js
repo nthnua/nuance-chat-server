@@ -1,9 +1,11 @@
 const getDB = require('../util/db').getDB
 
 class User {
-  constructor (username, password) {
+  constructor (username, password, peerid = 'test') {
     this.username = username
     this.password = password
+    this.peerid = peerid
+    this.sessions = []
     this.creationtime = Date.now()
   }
 
@@ -29,7 +31,32 @@ class User {
       username: { $eq: this.username }
     }, {
       projection: {
-        password: 1
+        password: 1,
+        sessions: 1
+      }
+    })
+  }
+
+  addSession (sessionId, prevSessions) {
+    const updatedSessions = [...prevSessions, sessionId]
+    console.log(updatedSessions)
+    const db = getDB()
+    return db.collection('users').updateOne({
+      username: { $eq: this.username }
+    }, {
+      $set: { sessions: updatedSessions }
+    }
+    )
+  }
+
+  getSessions (objId) {
+    const db = getDB()
+    return db.collection('users').findOne({
+      _id: { $eq: objId }
+    }, {
+      projection: {
+        _id: 0,
+        sessions: 1
       }
     })
   }

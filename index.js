@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors')
+const { ExpressPeerServer } = require('peer')
 require('dotenv').config()
 
 const login = require('./controllers/user').login
@@ -20,5 +21,8 @@ app.post('/api/signup', signup)
 app.get('/api/lounge', auth, lounge)
 
 mongoConnect(client => {
-  app.listen(8000)
+  const server = app.listen(8000)
+  // peerjs server
+  const peerServer = ExpressPeerServer(server)
+  app.use('/peer', peerServer)
 })

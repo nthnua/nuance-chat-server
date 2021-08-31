@@ -1,18 +1,14 @@
 const Lounge = (req, res, next) => {
-  console.log(req.user)
   if (req.user) {
     console.log(req.user)
+    const contacts = Array(25).fill({
+      id: 1,
+      msgs: 2,
+      name: 'John Doe'
+    }
+    )
     res.json({
-      contacts: [{
-        id: 1,
-        msgs_id: 2,
-        name: 'woo'
-      },
-      {
-        id: 2,
-        msgs_id: 3,
-        name: 'whe'
-      }]
+      contacts
     })
   }
 }

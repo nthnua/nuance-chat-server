@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
+const { createHash } = require('crypto')
 
 const Login = (req, res, next) => {
   const tokenSecret = process.env.AUTH_TOKEN_SECRET
@@ -11,12 +12,19 @@ const Login = (req, res, next) => {
         if (match) {
           const token = jwt.sign({
             userId: userCreds._id
-          }, tokenSecret, { expiresIn: '1h' })
-          res.json(token)
+          }, tokenSecret, { expiresIn: '100d' })
+          const sessionId = createHash('sha1').update(token).digest('base64')
+          user.addSession(sessionId, userCreds.sessions)
+          res.json({
+            id: userCreds._id,
+            token
+          })
+        } else {
+          res.status(401).send('Invalid username or password!')
         }
       }).catch(err => console.log(err))
     } else {
-      res.status(404).send('User not found!')
+      res.status(404).send('Invalid username or password!')
     }
   }).catch(err => console.log(err))
   // const password = req.body.password
