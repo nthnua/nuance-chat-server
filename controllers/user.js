@@ -10,7 +10,7 @@ const Login = (req, res, next) => {
       bcrypt.compare(user.password, userCreds.password).then(match => {
         if (match) {
           const token = jwt.sign({
-            userid: userCreds._id
+            userId: userCreds._id
           }, tokenSecret, { expiresIn: '1h' })
           res.json(token)
         }

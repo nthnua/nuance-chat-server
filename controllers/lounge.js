@@ -1,11 +1,12 @@
 const Lounge = (req, res, next) => {
-  if (req.userdata) {
-    console.log(req.userdata)
+  console.log(req.user)
+  if (req.user) {
+    console.log(req.user)
     res.json({
       contacts: [{
         id: 1,
         msgs_id: 2,
-        name: 'who'
+        name: 'woo'
       },
       {
         id: 2,

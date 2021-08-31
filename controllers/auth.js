@@ -5,7 +5,7 @@ const Auth = (req, res, next) => {
   const secret = process.env.AUTH_TOKEN_SECRET
   jwt.verify(token, secret, (err, decoded) => {
     if (decoded) {
-      console.log(decoded)
+      req.user = decoded.userId
       next()
     } else {
       console.error(err)
