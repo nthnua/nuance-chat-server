@@ -8,6 +8,7 @@ const signup = require('./controllers/user').signup
 const lounge = require('./controllers/lounge').lounge
 const auth = require('./controllers/auth').auth
 const mongoConnect = require('./util/db').mongoConnect
+const { getChats } = require('./controllers/lounge')
 const app = express()
 
 // enable cross origin resource sharing
@@ -19,6 +20,8 @@ app.use(express.json())
 app.post('/api/login', login)
 app.post('/api/signup', signup)
 app.get('/api/lounge', auth, lounge)
+
+app.get('/api/chats/:id', auth, getChats)
 
 mongoConnect(client => {
   const server = app.listen(8000)
