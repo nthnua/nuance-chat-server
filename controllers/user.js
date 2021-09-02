@@ -17,7 +17,7 @@ const Login = (req, res, next) => {
           user.addSession(sessionId, userCreds.sessions)
           res.json({
             id: userCreds._id,
-            peerId: randomBytes(12).toString('hex'),
+            peerId: randomBytes(36).toString('hex'),
             token
           })
         } else {

@@ -5,7 +5,6 @@ const { ObjectId } = require('mongodb')
 
 const Auth = (req, res, next) => {
   const token = req.headers.authorization
-  console.log(req.headers)
   const secret = process.env.AUTH_TOKEN_SECRET
   jwt.verify(token, secret, (err, decoded) => {
     if (decoded) {

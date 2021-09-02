@@ -25,4 +25,10 @@ mongoConnect(client => {
   // peerjs server
   const peerServer = ExpressPeerServer(server)
   app.use('/peer', peerServer)
+  peerServer.on('connection', (conn) => {
+    console.log('peer connected', conn.getId())
+  })
+  peerServer.on('disconnect', (disconn) => {
+    console.log('peer disconnected', disconn.getId())
+  })
 })
