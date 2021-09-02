@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
-const { createHash } = require('crypto')
+const { createHash, randomBytes } = require('crypto')
 
 const Login = (req, res, next) => {
   const tokenSecret = process.env.AUTH_TOKEN_SECRET
@@ -17,6 +17,7 @@ const Login = (req, res, next) => {
           user.addSession(sessionId, userCreds.sessions)
           res.json({
             id: userCreds._id,
+            peerId: randomBytes(12).toString('hex'),
             token
           })
         } else {

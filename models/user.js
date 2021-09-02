@@ -1,20 +1,19 @@
 const getDB = require('../util/db').getDB
 
 class User {
-  constructor (username, password, peerid = 'test') {
+  constructor(username, password) {
     this.username = username
     this.password = password
-    this.peerid = peerid
     this.sessions = []
     this.creationtime = Date.now()
   }
 
-  save () {
+  save() {
     const db = getDB()
     return db.collection('users').insertOne(this)
   }
 
-  findMatch () {
+  findMatch() {
     const db = getDB()
     return db.collection('users').findOne({
       username: { $eq: this.username }
@@ -25,7 +24,7 @@ class User {
     })
   }
 
-  getUserCredentials () {
+  getUserCredentials() {
     const db = getDB()
     return db.collection('users').findOne({
       username: { $eq: this.username }
@@ -37,7 +36,7 @@ class User {
     })
   }
 
-  addSession (sessionId, prevSessions) {
+  addSession(sessionId, prevSessions) {
     const updatedSessions = [...prevSessions, sessionId]
     console.log(updatedSessions)
     const db = getDB()
@@ -49,7 +48,7 @@ class User {
     )
   }
 
-  getSessions (objId) {
+  getSessions(objId) {
     const db = getDB()
     return db.collection('users').findOne({
       _id: { $eq: objId }
