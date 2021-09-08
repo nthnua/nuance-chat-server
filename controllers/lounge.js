@@ -7,15 +7,15 @@ const Lounge = (req, res, next) => {
     //   name: 'John Doe'
     // })
     const contacts = [{
-      id: '613093cfa0d8deb19738bbd0',
-      peerId: '5c5b3efe322d409ba694dd1fd7641f63baf6e5b6b31066b0a53d42b2588e6efa2f7cba48',
+      id: '613626668852483c04e43285',
+      peerId: '67fd947394d03e57be02a8b5f5c414fe80658953b5562042d265d5b2c293941d07ad9865',
       chatId: 1,
       name: 'John Doe'
     }, {
-      id: '6130909c88b0d52426895de1',
-      peerId: 'ae1918e0e2154d05b0315678a0a0ab303a296cc6d328e1fef77dcfcb6159eee7c17bd0d5',
+      id: '6136267d8852483c04e43286',
+      peerId: '6b840f92bafcd87291cf52c4d3d96b02b85a536aa3cf9dcdb7b233ed9a31ec93b17346f9',
       chatId: 2,
-      name: `John's father`
+      name: 'Johnnny'
     }]
     res.json({
       contacts
@@ -25,7 +25,7 @@ const Lounge = (req, res, next) => {
 
 const getChats = (req, res, next) => {
   if (req.user) {
-    console.log(req.params)
+    // console.log(req.params)
     res.json({
       chats: [{
         sender: '6130909c88b0d52426895de1',
