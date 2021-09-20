@@ -13,6 +13,12 @@ const sockets = (server) => {
 
   io.on('connection', socket => {
     console.log('user connected', socket.id)
+    socket.on('chatMessage', data => {
+      console.log(data)
+    })
+    socket.on('disconnect', () => {
+      console.log('User disconnected')
+    })
   })
 }
 

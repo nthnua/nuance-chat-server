@@ -1,4 +1,5 @@
 const getDB = require('../util/db').getDB
+const { ObjectId } = require('mongodb')
 
 class User {
   constructor (username, password) {
@@ -48,16 +49,28 @@ class User {
     )
   }
 
-  getSessions (objId) {
+  getSessions (userId) {
     const db = getDB()
+    const id = new ObjectId(userId)
     return db.collection('users').findOne({
-      _id: { $eq: objId }
+      _id: { $eq: id }
     }, {
       projection: {
         _id: 0,
         sessions: 1
       }
     })
+  }
+
+  setSocketId (socketId, userId) {
+    const db = getDB()
+    const id = new ObjectId(userId)
+    return db.collection('users').updateOne({
+      _id: { $eq: id }
+    }, {
+      $set: { socketId }
+    }
+    )
   }
 }
 
