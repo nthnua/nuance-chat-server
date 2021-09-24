@@ -72,6 +72,19 @@ class User {
     }
     )
   }
+
+  getSocketId (userId) {
+    const db = getDB()
+    const id = new ObjectId(userId)
+    return db.collection('users').findOne({
+      _id: { $eq: id }
+    }, {
+      projection: {
+        _id: 0,
+        socketId: 1
+      }
+    })
+  }
 }
 
 module.exports = User
