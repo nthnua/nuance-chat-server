@@ -9,8 +9,8 @@ const Lounge = (req, res, next) => {
     //   name: 'John Doe'
     // })
     const contacts = Array(20).fill({
-      id: '613626668852483c04e43285',
-      peerId: '67fd947394d03e57be02a8b5f5c414fe80658953b5562042d265d5b2c293941d07ad9865',
+      //from: 613626668852483c04e43285
+      id: '6136267d8852483c04e43286',
       chatId: 1,
       name: 'John Doe'
     })
@@ -37,7 +37,7 @@ const getChats = (req, res, next) => {
     res.json({
       chats: [{
         sender: '6130909c88b0d52426895de1',
-        reciever: '613093cfa0d8deb19738bbd0',
+        reciever: '613626668852483c04e43285',
         content: 'Hiii',
         time: '1'
       }, {

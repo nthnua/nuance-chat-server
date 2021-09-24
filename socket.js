@@ -1,3 +1,5 @@
+const User = require('./models/user')
+
 const sockets = (server) => {
   const { Server } = require('socket.io')
 
@@ -12,8 +14,11 @@ const sockets = (server) => {
   io.use(socketsAuth)
 
   io.on('connection', socket => {
-    console.log('user connected', socket.id)
+    const user = new User()
+    user.setSocketId(socket.id, socket.userId)
     socket.on('chatMessage', data => {
+      socket.emit()
+      io.to(data.reciever).emit('chatMessage', data)
       console.log(data)
     })
     socket.on('disconnect', () => {
