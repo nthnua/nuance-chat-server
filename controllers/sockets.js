@@ -2,8 +2,9 @@ const jwt = require('jsonwebtoken')
 const { createHash } = require('crypto')
 const User = require('../models/user')
 
-const Auth = (req, res, next) => {
-  const token = req.headers.authorization
+const Auth = (socket, next) => {
+  console.log('Todo: do not use auth token for socket auth, use a key instead')
+  const token = socket.handshake.auth.token
   const secret = process.env.AUTH_TOKEN_SECRET
   jwt.verify(token, secret, (err, decoded) => {
     if (decoded) {
@@ -14,17 +15,19 @@ const Auth = (req, res, next) => {
       user.getSessions(decoded.userId).then(
         result => {
           if (result && result.sessions.includes(hash)) {
-            req.user = decoded.userId
-            next()
+            console.log('req authed')
+            socket.userId = decoded.userId
+            return next()
           } else {
-            res.status(401).send('Token expired')
+            return next(new Error('Unauthorized'))
           }
         }
       ).catch(err => console.error(err))
     } else {
       console.error(err)
-      res.status(401).send('Token expired')
+      return next(new Error('Unauthorized'))
     }
   })
 }
-exports.auth = Auth
+
+exports.socketsAuth = Auth
