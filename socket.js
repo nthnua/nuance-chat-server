@@ -1,3 +1,4 @@
+const Message = require('./models/message')
 const User = require('./models/user')
 
 const sockets = (server) => {
@@ -25,15 +26,26 @@ const sockets = (server) => {
     //   })
     // })
     socket.on('chatMessage', data => {
+      socket.emit('messageDelivery', {
+        mId: data.mId,
+        status: 1
+      })
       user.getSocketId(data.reciever).then(({ socketId }) => {
         console.log('Sending ', data.content, 'to', socketId)
-        socket.to(socketId).emit('chatMessage', data)
+        const message = new Message(data.sender, data.reciever, data.content)
+        message.save().then(() => {
+          socket.emit('messageDelivery', {
+            mId: data.mId,
+            status: 2
+          })
+          socket.to(socketId).emit('chatMessage', data)
+        }).catch(err => console.err(err))
       }).catch(err => {
         console.error(err)
       })
     })
     socket.on('disconnect', () => {
-      console.log('User disconnected')
+      user.setSocketId('', socket.userId)
     })
   })
 }

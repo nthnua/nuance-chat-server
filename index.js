@@ -28,9 +28,9 @@ app.post('/api/lounge', auth, setSocketId)
 app.get('/api/chats/:id', auth, getChats)
 
 mongoConnect(client => {
-  let port = process.env.PORT;
-  if (port == null || port == "") {
-    port = 8000;
+  let port = process.env.PORT
+  if (port === null || port === '') {
+    port = 8000
   }
   server.listen(port, () => {
     console.log(`Listening on ${port}`)

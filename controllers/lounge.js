@@ -17,12 +17,34 @@ const Lounge = (req, res, next) => {
     const contacts = [
       {
         id: '613626668852483c04e43285',
-        chatId: 1,
+        chats: [{
+          sender: '6130909c88b0d52426895de1',
+          reciever: '613626668852483c04e43285',
+          content: 'Hiii',
+          time: '1'
+        }, {
+          sender: '2',
+          reciever: 'You',
+          content: 'Hello',
+          time: '2'
+        }
+        ],
         name: 'John Doe'
       },
       {
         id: '6136267d8852483c04e43286',
-        chatId: 2,
+        chats: [{
+          sender: '6130909c88b0d52426895de1',
+          reciever: '613626668852483c04e43285',
+          content: 'Hiii',
+          time: '1'
+        }, {
+          sender: '2',
+          reciever: 'You',
+          content: 'Hello',
+          time: '2'
+        }
+        ],
         name: 'Johnnny'
       }]
     res.json({
