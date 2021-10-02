@@ -29,7 +29,7 @@ app.get('/api/chats/:id', auth, getChats)
 
 mongoConnect(client => {
   let port = process.env.PORT
-  if (port === null || port === '') {
+  if (!port) {
     port = 8000
   }
   server.listen(port, () => {
