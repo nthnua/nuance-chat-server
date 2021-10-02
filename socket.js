@@ -13,12 +13,35 @@ const sockets = (server) => {
   })
 
   io.use(socketsAuth)
-  let messageQueue = []
-  let recieverQueue = []
+  const messageQueue = []
+  const recieverQueue = []
   io.on('connection', socket => {
-    console.log(recieverQueue)
     const user = new User()
-    user.setSocketId(socket.id, socket.userId).then().catch(err => console.err(err))
+    socket.on('Connected', () => {
+      user.setSocketId(socket.id, socket.userId).then().catch(err => console.err(err))
+      if (recieverQueue.indexOf(socket.userId) !== -1) {
+        messageQueue.forEach((message, idx, msgQ) => {
+          if (message.reciever === socket.userId) {
+            console.log('Sending pending msgs')
+            socket.emit('chatMessage', message)
+            user.getSocketId(message.sender).then(({ socketId }) => {
+              socket.to(socketId).emit('messageDelivery', {
+                mId: message.mId,
+                status: 2
+              })
+            }).catch(err => console.error(err))
+            msgQ.splice(idx, 1)
+            console.log(messageQueue)
+          }
+        })
+        // filter(message => message.reciever === socket.userId)
+        // for (msg of pendingMsgs) {
+        //   console.log('Sending pending msgs')
+        //   socket.emit('chatMessage', msg)
+        //   messageQueue = messageQueue.filter(message => message.mId !== msg.mId)
+        // }
+      }
+    })
     // socket.on('join', ({ chatId }) => {
     //   socket.join(chatId)
     //   socket.on('chatMessage', data => {
@@ -27,21 +50,6 @@ const sockets = (server) => {
     //     socket.to(chatId).emit('chatMessage', data)
     //   })
     // })
-    if (recieverQueue.indexOf(socket.userId) !== -1) {
-      messageQueue.forEach((message, index) => {
-        if (message.reciever === socket.userId) {
-          console.log('Sending pending msgs')
-          socket.emit('chatMessage', message)
-          console.log(messageQueue)
-        }
-      })
-      // filter(message => message.reciever === socket.userId)
-      // for (msg of pendingMsgs) {
-      //   console.log('Sending pending msgs')
-      //   socket.emit('chatMessage', msg)
-      //   messageQueue = messageQueue.filter(message => message.mId !== msg.mId)
-      // }
-    }
     socket.on('chatMessage', data => {
       socket.emit('messageDelivery', {
         mId: data.mId,
@@ -51,10 +59,8 @@ const sockets = (server) => {
         if (socketId === '') {
           console.log('User offline adding to queue')
           messageQueue.push(data)
-          if (recieverQueue.indexOf(data.reciever) === -1)
-            recieverQueue.push(data.reciever)
-        }
-        else {
+          if (recieverQueue.indexOf(data.reciever) === -1) { recieverQueue.push(data.reciever) }
+        } else {
           console.log('Sending ', data.content, 'to', socketId)
           const message = new Message(data.sender, data.reciever, data.content)
           message.save().then(() => {
