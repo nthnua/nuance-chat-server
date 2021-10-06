@@ -23,6 +23,14 @@ class Message {
     }
     )
   }
+
+  getUndeliveredMessages (recieverId) {
+    const db = getDB()
+    return db.collection('messages').find({
+      reciever: { $eq: recieverId },
+      status: { $eq: 1 }
+    })
+  }
 }
 
 module.exports = Message

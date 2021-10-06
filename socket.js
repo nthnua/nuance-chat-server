@@ -13,36 +13,43 @@ const sockets = (server) => {
   })
 
   io.use(socketsAuth)
-  // these are dummy as
-  // TODO: use db to check if user has pending messages
-  const messageQueue = []
-  const recieverQueue = []
+  // // these are dummy as
+  // // TODO: use db to check if user has pending messages
+  // const messageQueue = []
+  // const recieverQueue = []
   io.on('connection', socket => {
     const user = new User()
     socket.on('Connected', () => {
-      user.setSocketId(socket.id, socket.userId).then().catch(err => console.err(err))
-      if (recieverQueue.indexOf(socket.userId) !== -1) {
-        messageQueue.forEach((message, idx, msgQ) => {
-          if (message.reciever === socket.userId) {
-            console.log('Sending pending msgs')
-            socket.emit('chatMessage', message)
-            user.getSocketId(message.sender).then(({ socketId }) => {
-              socket.to(socketId).emit('messageDelivery', {
-                mId: message.mId,
-                status: 2
-              })
-            }).catch(err => console.error(err))
-            msgQ.splice(idx, 1)
-            console.log(messageQueue)
-          }
+      user.setSocketId(socket.id, socket.userId).then(() => {
+        const message = new Message()
+        console.log('yay', socket.userId)
+        message.getUndeliveredMessages(socket.userId).forEach((message) => {
+          socket.emit('chatMessage', message)
         })
-        // filter(message => message.reciever === socket.userId)
-        // for (msg of pendingMsgs) {
-        //   console.log('Sending pending msgs')
-        //   socket.emit('chatMessage', msg)
-        //   messageQueue = messageQueue.filter(message => message.mId !== msg.mId)
-        // }
-      }
+      }).catch(err => console.error(err))
+      // if (recieverQueue.indexOf(socket.userId) !== -1) {
+      //   messageQueue.forEach((message, idx, msgQ) => {
+      //     if (message.reciever === socket.userId) {
+      //       console.log('Sending pending msgs')
+      //       socket.emit('chatMessage', message)
+      //       user.getSocketId(message.sender).then(({ socketId }) => {
+      //         socket.to(socketId).emit('messageDelivery', {
+      //           _id: message._id,
+
+      //           status: 2
+      //         })
+      //       }).catch(err => console.error(err))
+      //       msgQ.splice(idx, 1)
+      //       console.log(messageQueue)
+      //     }
+      //   })
+      //   // filter(message => message.reciever === socket.userId)
+      //   // for (msg of pendingMsgs) {
+      //   //   console.log('Sending pending msgs')
+      //   //   socket.emit('chatMessage', msg)
+      //   //   messageQueue = messageQueue.filter(message => message._id !== msg._id)
+      //   // }
+      // }
     })
     // socket.on('join', ({ chatId }) => {
     //   socket.join(chatId)
@@ -53,10 +60,10 @@ const sockets = (server) => {
     //   })
     // })
     socket.on('chatMessage', (data, sendAck) => {
-      data.mId = Math.ceil(Math.random() * 1000000000000)
+      data._id = Math.ceil(Math.random() * 1000000000000)
       data.status = 1
       sendAck({
-        mId: data.mId,
+        _id: data._id,
         status: data.status
       })
       user.getSocketId(data.reciever).then(({ socketId }) => {
@@ -66,7 +73,7 @@ const sockets = (server) => {
         //   //if (recieverQueue.indexOf(data.reciever) === -1) { recieverQueue.push(data.reciever) }
         // }
         console.log('Sending ', data.content, 'to', socketId)
-        const message = new Message(data.mId, data.sender, data.reciever, data.content, data.status)
+        const message = new Message(data._id, data.sender, data.reciever, data.content, data.status)
         message.save().then(() => {
           socket.to(socketId).emit('chatMessage', data)
         }).catch(err => console.error(err))
@@ -80,10 +87,12 @@ const sockets = (server) => {
         const message = new Message()
         const user = new User()
         console.log('updating status')
-        message.updateStatus(data.mId, 2).then().catch(err => console.error(err))
+        message.updateStatus(data._id, 2).then((data) => {
+          console.log(data)
+        }).catch(err => console.error(err))
         user.getSocketId(data.sender).then(({ socketId }) => {
           socket.to(socketId).emit('messageDelivery', {
-            mId: data.mId,
+            _id: data._id,
             status: 2
           })
         })
