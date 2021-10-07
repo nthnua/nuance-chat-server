@@ -26,6 +26,17 @@ const sockets = (server) => {
         message.getUndeliveredMessages(socket.userId).forEach((message) => {
           socket.emit('chatMessage', message)
         })
+        // Send delivery reports too
+        // Delivery reports are best effort
+        // Here it is guaranteed to deliver but when reporting immidiately after msg delivery it is not
+        message.getDeliveredButNotAckdMsgs(socket.userId).forEach((fetchedMessage) => {
+          socket.emit('messageDelivery', {
+            _id: fetchedMessage._id,
+            status: 2
+          }, (ackdData) => {
+            message.updateStatus(fetchedMessage._id, ackdData.status).then().catch(err => console.error(err))
+          })
+        })
       }).catch(err => console.error(err))
       // if (recieverQueue.indexOf(socket.userId) !== -1) {
       //   messageQueue.forEach((message, idx, msgQ) => {
@@ -91,10 +102,18 @@ const sockets = (server) => {
           console.log(data)
         }).catch(err => console.error(err))
         user.getSocketId(data.sender).then(({ socketId }) => {
-          socket.to(socketId).emit('messageDelivery', {
-            _id: data._id,
-            status: 2
-          })
+          // check if the socket is online if yes send delivery reports
+          if (socketId) {
+            // if the user gets disconnected at this point
+            // the delivery report is lost
+            // as acknowledgements are not supported when broadcasting.
+            // more work is required to guarantee message delivery report's delivery
+            socket.to(socketId).emit('messageDelivery', {
+              _id: data._id,
+              status: 2
+            })
+            message.updateStatus(data._id, 3).then().catch(err => console.error(err))
+          }
         })
       }
     })

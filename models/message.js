@@ -31,6 +31,14 @@ class Message {
       status: { $eq: 1 }
     })
   }
+
+  getDeliveredButNotAckdMsgs (senderId) {
+    const db = getDB()
+    return db.collection('messages').find({
+      sender: { $eq: senderId },
+      status: { $eq: 2 }
+    })
+  }
 }
 
 module.exports = Message
