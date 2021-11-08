@@ -23,15 +23,15 @@
   "homepage": "https://github.com/znapci/rinsme-server#readme",
   "devDependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^10.0.0",
-    "nodemon": "^2.0.12",
-    "standard": "^16.0.4"
+    "nodemon": "^2.0.12"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.1.1",
+    "peer": "^0.6.1",
     "socket.io": "^4.2.0"
   }
 }
