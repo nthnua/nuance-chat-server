@@ -1,6 +1,6 @@
 const getDB = require('../util/db').getDB
 class Message {
-  constructor (_id, sender, reciever, content, status) {
+  constructor(_id, sender, reciever, content, status) {
     this._id = _id
     this.sender = sender
     this.reciever = reciever
@@ -9,12 +9,12 @@ class Message {
     this.status = status
   }
 
-  save () {
+  save() {
     const db = getDB()
     return db.collection('messages').insertOne(this)
   }
 
-  updateStatus (_id, status) {
+  updateStatus(_id, status) {
     const db = getDB()
     return db.collection('messages').updateOne({
       _id: { $eq: _id }
@@ -24,7 +24,7 @@ class Message {
     )
   }
 
-  getUndeliveredMessages (recieverId) {
+  getUndeliveredMessages(recieverId) {
     const db = getDB()
     return db.collection('messages').find({
       reciever: { $eq: recieverId },
@@ -32,12 +32,30 @@ class Message {
     })
   }
 
-  getDeliveredButNotAckdMsgs (senderId) {
+  getDeliveredButNotAckdMsgs(senderId) {
     const db = getDB()
     return db.collection('messages').find({
       sender: { $eq: senderId },
       status: { $eq: 2 }
     })
+  }
+  getMessages(sender, reciever) {
+    const db = getDB()
+    return db.collection('messages').find(
+      {
+        $or: [{
+          sender: { $eq: sender },
+          reciever: { $eq: reciever }
+
+        },
+        {
+          sender: { $eq: reciever },
+          reciever: { $eq: sender }
+
+        }
+        ]
+      }
+    ).limit(15)
   }
 }
 

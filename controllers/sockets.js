@@ -60,21 +60,21 @@ const onInitialConnection = (socket) => {
     console.log('Acked at ', ackData)
     const user = new User()
     user.setSocketId(socket.id, socket.userId).then(() => {
-      const message = new Message()
-      message.getUndeliveredMessages(socket.userId).forEach((message) => {
-        socket.emit('chatMessage', message)
-      })
-      // Send delivery reports too
-      // Delivery reports are best effort
-      // Here it is guaranteed to deliver but when reporting immidiately after msg delivery it is not
-      message.getDeliveredButNotAckdMsgs(socket.userId).forEach((fetchedMessage) => {
-        socket.emit('messageDelivery', {
-          _id: fetchedMessage._id,
-          status: 2
-        }, (ackdData) => {
-          message.updateStatus(fetchedMessage._id, ackdData.status).then().catch(err => console.error(err))
-        })
-      })
+      // const message = new Message()
+      // message.getUndeliveredMessages(socket.userId).forEach((message) => {
+      //   socket.emit('chatMessage', message)
+      // })
+      // // Send delivery reports too
+      // // Delivery reports are best effort
+      // // Here it is guaranteed to deliver but when reporting immidiately after msg delivery it is not
+      // message.getDeliveredButNotAckdMsgs(socket.userId).forEach((fetchedMessage) => {
+      //   socket.emit('messageDelivery', {
+      //     _id: fetchedMessage._id,
+      //     status: 2
+      //   }, (ackdData) => {
+      //     message.updateStatus(fetchedMessage._id, ackdData.status).then().catch(err => console.error(err))
+      //   })
+      // })
     }).catch(err => console.error(err))
   }
   const chatUser = new ChatUser(socket.userId)
@@ -127,9 +127,23 @@ const onDelivery = (data, socket) => {
     })
   }
 }
+const onGetChats = (data, socket) => {
+  const sender = data.chatId
+  const reciever = socket.userId
+  const message = new Message()
+  message.getMessages(sender, reciever).toArray().then(
+    (messages) => {
+
+      console.log(messages)
+      socket.emit('batchMessages', { messages })
+    }
+  ).catch(err => console.log(err))
+
+}
 
 
 exports.onDelivery = onDelivery
 exports.onChatMessage = onChatMessage
+exports.onGetChats = onGetChats
 exports.onInitialConnection = onInitialConnection
 exports.socketsAuth = Auth
