@@ -1,3 +1,4 @@
+const ChatUser = require('../models/chatUser')
 const User = require('../models/user')
 
 const Lounge = (req, res, next) => {
@@ -47,9 +48,15 @@ const Lounge = (req, res, next) => {
         ],
         name: 'Johnnny'
       }]
-    res.json({
-      contacts
-    })
+    const loungeUser = new ChatUser(req.user, true, contacts)
+    loungeUser.getContacts().then(contacts => {
+      console.log(contacts)
+      res.json(contacts)
+    }).catch(err => console.error(err))
+
+    // res.json({
+    //   contacts
+    // })
   }
 }
 
@@ -73,19 +80,19 @@ const getChats = (req, res, next) => {
   }
 }
 
-const setSocketId = (req, res, next) => {
-  if (req.user) {
-    const user = new User()
-    user.setSocketId(req.body.socketId, req.user).then(result => {
-      console.log(result)
-      res.status(200).json({
-        socketId: req.body.socketId,
-        message: 'SocketId set successfully'
-      })
-    }).catch(err => console.error(err))
-  }
-}
+// const setSocketId = (req, res, next) => {
+//   if (req.user) {
+//     const user = new User()
+//     user.setSocketId(req.body.socketId, req.user).then(result => {
+//       console.log(result)
+//       res.status(200).json({
+//         socketId: req.body.socketId,
+//         message: 'SocketId set successfully'
+//       })
+//     }).catch(err => console.error(err))
+//   }
+// }
 
-exports.setSocketId = setSocketId
+// exports.setSocketId = setSocketId
 exports.getChats = getChats
 exports.lounge = Lounge
