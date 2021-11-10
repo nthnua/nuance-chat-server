@@ -5,26 +5,28 @@ const Message = require('../models/message')
 const ChatUser = require('../models/chatUser')
 
 const Auth = (socket, next) => {
-  console.log('Todo: do not use auth token for socket auth, use a key instead')
   const token = socket.handshake.auth.token
   const secret = process.env.AUTH_TOKEN_SECRET
   jwt.verify(token, secret, (err, decoded) => {
     if (decoded) {
-      const user = new User()
+      console.log(decoded.userId + 'Connected')
+      socket.userId = decoded.userId
+      // const user = new User()
+      // due to new direction of the project multilogin support is disabled indefinately
       // create a hash of jwt given to the client to compare
       // against an array of hashes in user database
-      const hash = createHash('sha1').update(token).digest('base64')
-      user.getSessions(decoded.userId).then(
-        result => {
-          if (result && result.sessions.includes(hash)) {
-            console.log('req authed')
-            socket.userId = decoded.userId
-            return next()
-          } else {
-            return next(new Error('Unauthorized'))
-          }
-        }
-      ).catch(err => console.error(err))
+      // const hash = createHash('sha1').update(token).digest('base64')
+      // user.getSessions(decoded.userId).then(
+      //   result => {
+      //     if (result && result.sessions.includes(hash)) {
+      //       console.log('req authed')
+      //       socket.userId = decoded.userId
+      //       return next()
+      //     } else {
+      //       return next(new Error('Unauthorized'))
+      //     }
+      //   }
+      // ).catch(err => console.error(err))
     } else {
       console.error(err)
       return next(new Error('Unauthorized'))
