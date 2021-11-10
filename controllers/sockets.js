@@ -9,8 +9,9 @@ const Auth = (socket, next) => {
   const secret = process.env.AUTH_TOKEN_SECRET
   jwt.verify(token, secret, (err, decoded) => {
     if (decoded) {
-      console.log(decoded.userId + 'Connected')
+      console.log(decoded.userId + ' Connected')
       socket.userId = decoded.userId
+      return next()
       // const user = new User()
       // due to new direction of the project multilogin support is disabled indefinately
       // create a hash of jwt given to the client to compare
