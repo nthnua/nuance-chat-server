@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const { createHash } = require('crypto')
 const User = require('../models/user')
 const Message = require('../models/message')
+const ChatUser = require('../models/chatUser')
 
 const Auth = (socket, next) => {
   console.log('Todo: do not use auth token for socket auth, use a key instead')
@@ -31,25 +32,52 @@ const Auth = (socket, next) => {
   })
 }
 
-const onConnection = (socket) => {
-  const user = new User()
-  user.setSocketId(socket.id, socket.userId).then(() => {
-    const message = new Message()
-    console.log('yay', socket.userId)
-    message.getUndeliveredMessages(socket.userId).forEach((message) => {
-      socket.emit('chatMessage', message)
-    })
-    // Send delivery reports too
-    // Delivery reports are best effort
-    // Here it is guaranteed to deliver but when reporting immidiately after msg delivery it is not
-    message.getDeliveredButNotAckdMsgs(socket.userId).forEach((fetchedMessage) => {
-      socket.emit('messageDelivery', {
-        _id: fetchedMessage._id,
-        status: 2
-      }, (ackdData) => {
-        message.updateStatus(fetchedMessage._id, ackdData.status).then().catch(err => console.error(err))
+// const onConnection = (socket) => {
+//   const user = new User()
+//   user.setSocketId(socket.id, socket.userId).then(() => {
+//     const message = new Message()
+//     message.getUndeliveredMessages(socket.userId).forEach((message) => {
+//       socket.emit('chatMessage', message)
+//     })
+//     // Send delivery reports too
+//     // Delivery reports are best effort
+//     // Here it is guaranteed to deliver but when reporting immidiately after msg delivery it is not
+//     message.getDeliveredButNotAckdMsgs(socket.userId).forEach((fetchedMessage) => {
+//       socket.emit('messageDelivery', {
+//         _id: fetchedMessage._id,
+//         status: 2
+//       }, (ackdData) => {
+//         message.updateStatus(fetchedMessage._id, ackdData.status).then().catch(err => console.error(err))
+//       })
+//     })
+//   }).catch(err => console.error(err))
+// }
+const onInitialConnection = (socket) => {
+  const onInitAck = (ackData) => {
+    console.log('Acked at ', ackData)
+    const user = new User()
+    user.setSocketId(socket.id, socket.userId).then(() => {
+      const message = new Message()
+      message.getUndeliveredMessages(socket.userId).forEach((message) => {
+        socket.emit('chatMessage', message)
       })
-    })
+      // Send delivery reports too
+      // Delivery reports are best effort
+      // Here it is guaranteed to deliver but when reporting immidiately after msg delivery it is not
+      message.getDeliveredButNotAckdMsgs(socket.userId).forEach((fetchedMessage) => {
+        socket.emit('messageDelivery', {
+          _id: fetchedMessage._id,
+          status: 2
+        }, (ackdData) => {
+          message.updateStatus(fetchedMessage._id, ackdData.status).then().catch(err => console.error(err))
+        })
+      })
+    }).catch(err => console.error(err))
+  }
+  const chatUser = new ChatUser(socket.userId)
+  chatUser.getContacts().then(contacts => {
+    console.log('Sending contacts', contacts)
+    socket.emit('initialContacts', contacts, onInitAck)
   }).catch(err => console.error(err))
 }
 
@@ -97,7 +125,8 @@ const onDelivery = (data, socket) => {
   }
 }
 
+
 exports.onDelivery = onDelivery
 exports.onChatMessage = onChatMessage
-exports.onInitialConnection = onConnection
+exports.onInitialConnection = onInitialConnection
 exports.socketsAuth = Auth
