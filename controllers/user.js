@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
-const { createHash } = require('crypto')
+//const { createHash } = require('crypto')
 
 const Login = (req, res, next) => {
   const tokenSecret = process.env.AUTH_TOKEN_SECRET
@@ -13,8 +13,8 @@ const Login = (req, res, next) => {
           const token = jwt.sign({
             userId: userCreds._id
           }, tokenSecret, { expiresIn: '100d' })
-          const sessionId = createHash('sha1').update(token).digest('base64')
-          user.addSession(sessionId, userCreds.sessions)
+          //const sessionId = createHash('sha1').update(token).digest('base64')
+          //user.addSession(sessionId, userCreds.sessions)
           res.json({
             id: userCreds._id,
             token
