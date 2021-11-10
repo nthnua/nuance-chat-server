@@ -133,8 +133,7 @@ const onGetChats = (data, socket) => {
   const message = new Message()
   message.getMessages(sender, reciever).toArray().then(
     (messages) => {
-
-      console.log(messages)
+      messages.reverse()
       socket.emit('batchMessages', { messages })
     }
   ).catch(err => console.log(err))

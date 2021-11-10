@@ -55,7 +55,7 @@ class Message {
         }
         ]
       }
-    ).limit(15)
+    ).limit(15).sort({ time: -1 })
   }
 }
 
