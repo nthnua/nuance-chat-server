@@ -20,11 +20,15 @@ const Login = (req, res, next) => {
             token
           })
         } else {
-          res.status(401).send('Invalid username or password!')
+          res.status(401).json({
+            message: 'Invalid username or password!'
+          })
         }
       }).catch(err => console.log(err))
     } else {
-      res.status(401).send('Invalid username or password!')
+      res.status(401).json({
+        message: 'Invalid username or password!'
+      })
     }
   }).catch(err => console.log(err))
   // const password = req.body.password
@@ -59,11 +63,15 @@ const Signup = (req, res, next) => {
     user.findMatch().then(matches => {
       if (matches) {
         console.log(matches)
-        res.status(409).send('username already exists:(')
+        res.status(409).json({
+          message: 'username already exists:('
+        })
       } else {
         user.save().then(result => {
           console.log(result)
-          res.status(201).send('Success:)')
+          res.status(201).json({
+            message: 'Signup successful'
+          })
         }).catch(err => console.err(err))
       }
     }).catch(err => console.log(err))
@@ -74,11 +82,14 @@ const Logout = (req, res, next) => {
   const userId = req.user
   const user = new User()
   user.removeSession(req.session, req.user).then(() => {
-    console.log('Deleted session')
-    res.status(200).send('Logout Successful')
+    res.status(200).json({
+      message: 'Logout successful'
+    })
   }).catch(err => {
     console.error(err)
-    res.status(401).send('Unauthorized')
+    res.status(400).json({
+      message: 'Bad request'
+    })
   }
   )
 }

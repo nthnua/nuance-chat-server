@@ -19,13 +19,17 @@ const Auth = (req, res, next) => {
             req.session = hash
             next()
           } else {
-            res.status(401).send('Token expired')
+            res.status(401).json({
+              message: 'Unauthorized'
+            })
           }
         }
       ).catch(err => console.error(err))
     } else {
       console.error(err)
-      res.status(401).send('Token expired')
+      res.status(401).json({
+        message: 'Unauthorized'
+      })
     }
   })
 }
