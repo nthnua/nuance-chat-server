@@ -29,6 +29,7 @@ const sockets = (server) => {
       onGetChats(data, socket)
     })
     socket.on('disconnect', () => {
+      console.log('User disconnected', socket.userId)
       user.setSocketId('', socket.userId)
     })
   })

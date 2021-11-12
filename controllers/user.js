@@ -70,5 +70,19 @@ const Signup = (req, res, next) => {
   }).catch(err => console.error(err))
 }
 
+const Logout = (req, res, next) => {
+  const userId = req.user
+  const user = new User()
+  user.removeSession(req.session, req.user).then(() => {
+    console.log('Deleted session')
+    res.status(200).send('Logout Successful')
+  }).catch(err => {
+    console.error(err)
+    res.status(401).send('Unauthorized')
+  }
+  )
+}
+
+exports.logout = Logout
 exports.signup = Signup
 exports.login = Login

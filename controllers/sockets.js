@@ -136,9 +136,7 @@ const onGetChats = (data, socket) => {
       socket.emit('batchMessages', { messages })
     }
   ).catch(err => console.log(err))
-
 }
-
 
 exports.onDelivery = onDelivery
 exports.onChatMessage = onChatMessage

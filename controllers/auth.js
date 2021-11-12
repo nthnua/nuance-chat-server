@@ -16,6 +16,7 @@ const Auth = (req, res, next) => {
         result => {
           if (result && result.sessions.includes(hash)) {
             req.user = decoded.userId
+            req.session = hash
             next()
           } else {
             res.status(401).send('Token expired')
