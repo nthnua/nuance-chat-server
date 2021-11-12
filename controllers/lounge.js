@@ -17,38 +17,19 @@ const Lounge = (req, res, next) => {
     // })
     const contacts = [
       {
-        id: '613626668852483c04e43285',
-        chats: [{
-          sender: '6130909c88b0d52426895de1',
-          reciever: '613626668852483c04e43285',
-          content: 'Hiii',
-          time: '1'
-        }, {
-          sender: '2',
-          reciever: 'You',
-          content: 'Hello',
-          time: '2'
-        }
+        id: '618cc7f07b6f5d18b38a75db',
+        chats: [
         ],
         name: 'John Doe'
       },
       {
         id: '6136267d8852483c04e43286',
-        chats: [{
-          sender: '6130909c88b0d52426895de1',
-          reciever: '613626668852483c04e43285',
-          content: 'Hiii',
-          time: '1'
-        }, {
-          sender: '2',
-          reciever: 'You',
-          content: 'Hello',
-          time: '2'
-        }
+        chats: [
         ],
         name: 'Johnnny'
       }]
     const loungeUser = new ChatUser(req.user, true, contacts)
+    loungeUser.save()
     loungeUser.getContacts().then(contacts => {
       console.log(contacts)
       res.json(contacts)

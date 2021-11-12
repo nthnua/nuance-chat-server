@@ -39,7 +39,6 @@ class User {
 
   addSession (sessionId, prevSessions) {
     const updatedSessions = [...prevSessions, sessionId]
-    console.log(updatedSessions)
     const db = getDB()
     return db.collection('users').updateOne({
       username: { $eq: this.username }
@@ -47,6 +46,27 @@ class User {
       $set: { sessions: updatedSessions }
     }
     )
+  }
+
+  removeSession (sessionId, userId) {
+    const db = getDB()
+    const id = new ObjectId(userId)
+    return db.collection('users').findOne({
+      _id: { $eq: id }
+    }, {
+      projection: {
+        _id: 0,
+        sessions: 1
+      }
+    }).then(userCreds => {
+      const updatedSessions = userCreds.sessions.filter(session => session !== sessionId)
+      return db.collection('users').updateOne({
+        _id: { $eq: userId }
+      }, {
+        $set: { sessions: updatedSessions }
+      }
+      )
+    }).catch(err => console.error(err))
   }
 
   getSessions (userId) {
