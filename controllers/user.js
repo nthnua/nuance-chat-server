@@ -79,7 +79,6 @@ const Signup = (req, res, next) => {
 }
 
 const Logout = (req, res, next) => {
-  const userId = req.user
   const user = new User()
   user.removeSession(req.session, req.user).then(() => {
     res.status(200).json({

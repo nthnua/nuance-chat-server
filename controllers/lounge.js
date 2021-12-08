@@ -1,5 +1,4 @@
 const ChatUser = require('../models/chatUser')
-const User = require('../models/user')
 
 const Lounge = (req, res, next) => {
   if (req.user) {
@@ -17,13 +16,13 @@ const Lounge = (req, res, next) => {
     // })
     const contacts = [
       {
-        id: '618cc7f07b6f5d18b38a75db',
+        id: 'someone',
         chats: [
         ],
         name: 'John Doe'
       },
       {
-        id: '6136267d8852483c04e43286',
+        id: 'someone_else',
         chats: [
         ],
         name: 'Johnnny'
