@@ -16,7 +16,7 @@ const Login = (req, res, next) => {
           const sessionId = createHash('sha1').update(token).digest('base64')
           user.addSession(sessionId, userCreds.sessions).then().catch(err => console.error(err))
           res.json({
-            userId: req.body.username,
+            id: req.body.username,
             token
           })
         } else {
