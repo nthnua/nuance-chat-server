@@ -1,5 +1,4 @@
 const getDB = require('../util/db').getDB
-const { ObjectId } = require('mongodb')
 
 class User {
   constructor (username, password) {
