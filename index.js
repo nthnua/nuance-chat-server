@@ -7,7 +7,6 @@ const signup = require('./controllers/user').signup
 const lounge = require('./controllers/lounge').lounge
 const auth = require('./controllers/auth').auth
 const mongoConnect = require('./util/db').mongoConnect
-const { getChats } = require('./controllers/lounge')
 const { sockets } = require('./socket')
 const { logout } = require('./controllers/user')
 const app = express()

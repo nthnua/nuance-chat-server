@@ -5,7 +5,7 @@ let _db = null
 const mongoConnect = callback => {
   MongoClient.connect(process.env.MONGO_URL).then(client => {
     console.log('DB connected')
-    _db = client.db('rinsme')
+    _db = client.db()
     callback(client)
   }).catch(err => console.error(err))
 }

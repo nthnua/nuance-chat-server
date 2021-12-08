@@ -1,5 +1,4 @@
 const getDB = require('../util/db').getDB
-const { ObjectId } = require('mongodb')
 
 class User {
   constructor (username, password) {
@@ -50,9 +49,8 @@ class User {
 
   removeSession (sessionId, userId) {
     const db = getDB()
-    const id = new ObjectId(userId)
     return db.collection('users').findOne({
-      _id: { $eq: id }
+      username: { $eq: userId }
     }, {
       projection: {
         _id: 0,
@@ -61,7 +59,7 @@ class User {
     }).then(userCreds => {
       const updatedSessions = userCreds.sessions.filter(session => session !== sessionId)
       return db.collection('users').updateOne({
-        _id: { $eq: userId }
+        username: { $eq: userId }
       }, {
         $set: { sessions: updatedSessions }
       }
@@ -71,9 +69,8 @@ class User {
 
   getSessions (userId) {
     const db = getDB()
-    const id = new ObjectId(userId)
     return db.collection('users').findOne({
-      _id: { $eq: id }
+      username: { $eq: userId }
     }, {
       projection: {
         _id: 0,
@@ -84,9 +81,8 @@ class User {
 
   setSocketId (socketId, userId) {
     const db = getDB()
-    const id = new ObjectId(userId)
     return db.collection('users').updateOne({
-      _id: { $eq: id }
+      username: { $eq: userId }
     }, {
       $set: { socketId }
     }
@@ -95,9 +91,8 @@ class User {
 
   getSocketId (userId) {
     const db = getDB()
-    const id = new ObjectId(userId)
     return db.collection('users').findOne({
-      _id: { $eq: id }
+      username: { $eq: userId }
     }, {
       projection: {
         _id: 0,
