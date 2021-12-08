@@ -11,12 +11,12 @@ const Login = (req, res, next) => {
       bcrypt.compare(user.password, userCreds.password).then(match => {
         if (match) {
           const token = jwt.sign({
-            userId: userCreds._id
+            userId: req.body.username
           }, tokenSecret, { expiresIn: '100d' })
           const sessionId = createHash('sha1').update(token).digest('base64')
           user.addSession(sessionId, userCreds.sessions).then().catch(err => console.error(err))
           res.json({
-            id: userCreds._id,
+            userId: req.body.username,
             token
           })
         } else {
