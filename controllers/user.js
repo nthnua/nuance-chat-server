@@ -71,7 +71,9 @@ const Signup = (req, res, next) => {
         })
       } else {
         user.save().then(result => {
-          sendSignupMail(req.body.email, username, verifId)
+          sendSignupMail(req.body.email, username, verifId).catch(err => {
+            console.error(err)
+          })
           res.status(201).json({
             message: 'Signup successful'
           })
