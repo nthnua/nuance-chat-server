@@ -148,16 +148,20 @@ const onFriendRequest = (data, sendAck, socket) => {
 }
 const onAcceptRequest = (data, socket) => {
   const chatUser = new ChatUser()
-  chatUser.addContacts(socket.userId, data.reciever).then().catch(err => console.error(err))
-  socket.to(data.reciever).emit('newContact',
-    {
-      id: socket.userId,
-      chats: [
+  const user = new User()
+  chatUser.addContacts(socket.userId, data.reciever).then(() => {
+    user.getName(socket.userId).then(({ realName }) => {
+      socket.to(data.reciever).emit('newContact',
+        {
+          id: socket.userId,
+          chats: [
 
-      ],
-      name: socket.userId
-    }
-  )
+          ],
+          name: realName
+        }
+      )
+    })
+  }).catch(err => console.error(err))
 }
 const onGetChats = (data, socket) => {
   const sender = data.chatId
