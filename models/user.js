@@ -19,7 +19,7 @@ class User {
   findMatch () {
     const db = getDB()
     return db.collection('users').findOne({
-      username: { $eq: this.username }
+      $or: [{ username: { $eq: this.username } }, { email: { $eq: this.email } }]
     }, {
       projection: {
         _id: 1
