@@ -64,7 +64,7 @@ const Signup = (req, res, next) => {
       if (matches) {
         console.log(matches)
         res.status(409).json({
-          message: 'username already exists:('
+          message: 'username or email already exists.'
         })
       } else {
         user.save().then(result => {

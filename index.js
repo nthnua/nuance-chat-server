@@ -11,7 +11,6 @@ const { sockets } = require('./socket')
 const { logout } = require('./controllers/user')
 const app = express()
 const server = http.createServer(app)
-const { body } = require('express-validator')
 const { userValidationRules, validate } = require('./util/validator')
 
 // for socket.io
