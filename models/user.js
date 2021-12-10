@@ -104,27 +104,39 @@ class User {
     })
   }
 
-  saveFriendRequest (userId, req) {
+  getName (userId) {
     const db = getDB()
     return db.collection('users').findOne({
       username: { $eq: userId }
     }, {
       projection: {
         _id: 0,
-        requests: 1
+        realName: 1
       }
-    }).then(data => {
-      const updatedReqs = [...data.requests, req]
-      return db.collection('users').updateOne({
-        username: { $eq: userId }
-      }, {
-        $set: { requests: updatedReqs }
-      }
-      ).catch(err => console.error(err))
-    }).catch(err => {
-      console.error(err)
     })
   }
+
+  // saveFriendRequest (userId, req) {
+  //   const db = getDB()
+  //   return db.collection('users').findOne({
+  //     username: { $eq: userId }
+  //   }, {
+  //     projection: {
+  //       _id: 0,
+  //       requests: 1
+  //     }
+  //   }).then(data => {
+  //     const updatedReqs = [...data.requests, req]
+  //     return db.collection('users').updateOne({
+  //       username: { $eq: userId }
+  //     }, {
+  //       $set: { requests: updatedReqs }
+  //     }
+  //     ).catch(err => console.error(err))
+  //   }).catch(err => {
+  //     console.error(err)
+  //   })
+  // }
 }
 
 module.exports = User
