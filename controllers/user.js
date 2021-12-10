@@ -1,7 +1,8 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
-const { createHash } = require('crypto')
+const { createHash, randomBytes } = require('crypto')
+const { sendSignupMail } = require('./email')
 
 const Login = (req, res, next) => {
   const tokenSecret = process.env.AUTH_TOKEN_SECRET
@@ -57,9 +58,11 @@ const Login = (req, res, next) => {
 const Signup = (req, res, next) => {
   const username = req.body.username
   const password = req.body.password
+  const verifId = randomBytes(100).toString('hex')
+
   const saltRounds = 10
   bcrypt.hash(password, saltRounds).then((hash) => {
-    const user = new User(username, hash, req.body.realName, req.body.age, req.body.email)
+    const user = new User(username, hash, req.body.realName, req.body.age, req.body.email, verifId, false)
     user.findMatch().then(matches => {
       if (matches) {
         console.log(matches)
@@ -68,7 +71,9 @@ const Signup = (req, res, next) => {
         })
       } else {
         user.save().then(result => {
-          console.log(result)
+          sendSignupMail(req.body.email, username, verifId).catch(err => {
+            console.error(err)
+          })
           res.status(201).json({
             message: 'Signup successful'
           })
@@ -92,7 +97,23 @@ const Logout = (req, res, next) => {
   }
   )
 }
-
+const VerifyMail = (req, res, next) => {
+  const verifUserId = req.query.userId || ''
+  const verifCode = req.query.verifId || ''
+  const redirectUrl = `${process.env.FRONTEND_ADDRESS}/login?emailVerified=true`
+  const user = new User()
+  user.getVerificationCode(verifUserId).then(({ verificationCode }) => {
+    if (verificationCode === verifCode) {
+      user.setVerification(verifUserId, true)
+      res.redirect(redirectUrl)
+    } else {
+      res.status(400).json({
+        msg: 'Invalid id or code!'
+      })
+    }
+  })
+}
 exports.logout = Logout
 exports.signup = Signup
 exports.login = Login
+exports.verifymail = VerifyMail

@@ -2,7 +2,7 @@ const { body, validationResult } = require('express-validator')
 const userValidationRules = () => {
   return [
     body('username').isAlphanumeric().trim(),
-    body('realName').notEmpty().trim().escape(), body('age').isNumeric().toInt(), body('email').isEmail().normalizeEmail(),
+    body('realName').notEmpty(), body('age').isNumeric().toInt(), body('email').isEmail().normalizeEmail(),
     body('password').isLength({ min: 5 })
   ]
 }
