@@ -3,7 +3,7 @@ const User = require('./models/user')
 const sockets = (server) => {
   const { Server } = require('socket.io')
 
-  const { socketsAuth, onChatMessage, onDelivery, onInitialConnection, onGetChats, onFriendRequest, onAcceptRequest } = require('./controllers/sockets')
+  const { socketsAuth, onChatMessage, onDelivery, onInitialConnection, onGetChats, onFriendRequest, onAcceptRequest, onInitialLoadComplete } = require('./controllers/sockets')
   const io = new Server(server, {
     cors: {
       origin: '*',
@@ -19,6 +19,9 @@ const sockets = (server) => {
     //   onInitialConnection(socket)
     // })
     onInitialConnection(socket)
+    socket.on('loadComplete', () => {
+      onInitialLoadComplete(socket)
+    })
     socket.on('chatMessage', (data, sendAck) => {
       onChatMessage(data, sendAck, socket)
     })
