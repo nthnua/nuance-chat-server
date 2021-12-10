@@ -21,6 +21,8 @@ const sendSignupMail = (recieverMail, recieverId, verifId) => {
     <br/>
     <a href=${verificationLink}>click here</a>
     </h4>
+    If the link is not working, copy and paste the url to your address bar:<br/>
+    ${verificationLink}
     </div>
     `
   }
