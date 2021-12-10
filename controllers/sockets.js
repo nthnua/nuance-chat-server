@@ -36,6 +36,8 @@ const Auth = (socket, next) => {
 
 const onInitialLoadComplete = (socket) => {
   const message = new Message()
+  // send undelivered messages on load complete
+  // if sent earlier it can't be mapped to respective contacts
   message.getUndeliveredMessages(socket.userId).forEach((message) => {
     socket.emit('chatMessage', message)
   })
@@ -51,6 +53,7 @@ const onInitialLoadComplete = (socket) => {
     })
   })
 }
+// when the user connects or logs in
 const onInitialConnection = (socket) => {
   const onInitAck = (ackData) => {
     console.log('Acked at ', ackData)
@@ -68,12 +71,13 @@ const onChatMessage = (data, sendAck, socket) => {
   const user = new User()
   data._id = Math.ceil(Math.random() * 1000000000000)
   data.status = 1
+  // acknowledgement is sent with undelivered status and id
+  // helpful if/when showing mesage status on the client
   sendAck({
     _id: data._id,
     status: data.status
   })
   user.getSocketId(data.reciever).then(({ socketId }) => {
-    console.log('Sending ', data.content, 'to', socketId)
     const message = new Message(data._id, data.sender, data.reciever, data.content, data.status, data.type)
     message.save().then(() => {
       socket.to(socketId).emit('chatMessage', data)
@@ -83,14 +87,10 @@ const onChatMessage = (data, sendAck, socket) => {
   })
 }
 const onDelivery = (data, socket) => {
-  console.log(data)
   if (data.status === 2) {
     const message = new Message()
     const user = new User()
-    console.log('updating status')
-    message.updateStatus(data._id, 2).then((data) => {
-      console.log(data)
-    }).catch(err => console.error(err))
+    message.updateStatus(data._id, 2).then().catch(err => console.error(err))
     user.getSocketId(data.sender).then(({ socketId }) => {
       // check if the socket is online if yes send delivery reports
       if (socketId) {
@@ -98,18 +98,21 @@ const onDelivery = (data, socket) => {
         // the delivery report is lost
         // as acknowledgements are not supported when broadcasting.
         // more work is required to guarantee message delivery report's delivery
+        // status code 2 represents message has been sent to the recipient
         socket.to(socketId).emit('messageDelivery', {
           _id: data._id,
           status: 2
         })
+        // status code 3 represents message delivery acknowlegde is sent to the sender
         message.updateStatus(data._id, 3).then().catch(err => console.error(err))
       }
     })
   }
 }
 const onFriendRequest = (data, sendAck, socket) => {
-  // const user = new User()
-  // user.saveFriendRequest(data,)
+  // friend requests are special messages where,
+  // from and to represent the friend request's sender
+  // and recipient respectively and message is of type 'friendRequest'
   const user = new User()
   data._id = Math.ceil(Math.random() * 1000000000000)
   data.status = 1
@@ -127,10 +130,15 @@ const onFriendRequest = (data, sendAck, socket) => {
     console.error(err)
   })
 }
-const onAcceptRequest = (data, socket) => {
+
+const onAcceptFriendRequest = (data, socket) => {
   const chatUser = new ChatUser()
   const user = new User()
+  // when the recipient accepts the friend request
+  // add the senders contact to recipient's contact list and vice versa then
+  // send the the contact info of recipient to the sender
   chatUser.addContacts(socket.userId, data.reciever).then(() => {
+    chatUser.addContacts(data.reciever, socket.userId).catch(err => { console.error(err) })
     user.getName(socket.userId).then(({ realName }) => {
       socket.to(data.reciever).emit('newContact',
         {
@@ -144,6 +152,7 @@ const onAcceptRequest = (data, socket) => {
     })
   }).catch(err => console.error(err))
 }
+// send messages in batch when requested by the client
 const onGetChats = (data, socket) => {
   const sender = data.chatId
   const reciever = socket.userId
@@ -160,7 +169,7 @@ exports.onDelivery = onDelivery
 exports.onChatMessage = onChatMessage
 exports.onGetChats = onGetChats
 exports.onFriendRequest = onFriendRequest
-exports.onAcceptRequest = onAcceptRequest
+exports.onAcceptFriendRequest = onAcceptFriendRequest
 exports.onInitialLoadComplete = onInitialLoadComplete
 exports.onInitialConnection = onInitialConnection
 exports.socketsAuth = Auth
