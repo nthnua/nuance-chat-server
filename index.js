@@ -11,6 +11,7 @@ const { sockets } = require('./socket')
 const { logout } = require('./controllers/user')
 const app = express()
 const server = http.createServer(app)
+const { body } = require('express-validator')
 
 // for socket.io
 sockets(server)
@@ -22,7 +23,7 @@ app.use(cors())
 app.use(express.json())
 
 app.post('/api/login', login)
-app.post('/api/signup', signup)
+app.post('/api/signup', body('username').isAlphanumeric().trim(), body('realName').notEmpty().trim().escape(), body('age').isNumeric().toInt(), body('email').isEmail().normalizeEmail(), body('password').isLength({ min: 5 }), signup)
 app.get('/api/lounge', auth, lounge)
 // app.post('/api/lounge', auth, setSocketId)
 // app.get('/api/chats/:id', auth, getChats)

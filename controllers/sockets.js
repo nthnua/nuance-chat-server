@@ -59,21 +59,21 @@ const onInitialConnection = (socket) => {
     console.log('Acked at ', ackData)
     const user = new User()
     user.setSocketId(socket.id, socket.userId).then(() => {
-      // const message = new Message()
-      // message.getUndeliveredMessages(socket.userId).forEach((message) => {
-      //   socket.emit('chatMessage', message)
-      // })
-      // // Send delivery reports too
-      // // Delivery reports are best effort
-      // // Here it is guaranteed to deliver but when reporting immidiately after msg delivery it is not
-      // message.getDeliveredButNotAckdMsgs(socket.userId).forEach((fetchedMessage) => {
-      //   socket.emit('messageDelivery', {
-      //     _id: fetchedMessage._id,
-      //     status: 2
-      //   }, (ackdData) => {
-      //     message.updateStatus(fetchedMessage._id, ackdData.status).then().catch(err => console.error(err))
-      //   })
-      // })
+      const message = new Message()
+      message.getUndeliveredMessages(socket.userId).forEach((message) => {
+        socket.emit('chatMessage', message)
+      })
+      // Send delivery reports too
+      // Delivery reports are best effort
+      // Here it is guaranteed to deliver but when reporting immidiately after msg delivery it is not
+      message.getDeliveredButNotAckdMsgs(socket.userId).forEach((fetchedMessage) => {
+        socket.emit('messageDelivery', {
+          _id: fetchedMessage._id,
+          status: 2
+        }, (ackdData) => {
+          message.updateStatus(fetchedMessage._id, ackdData.status).then().catch(err => console.error(err))
+        })
+      })
     }).catch(err => console.error(err))
   }
   const chatUser = new ChatUser(socket.userId)
@@ -93,7 +93,7 @@ const onChatMessage = (data, sendAck, socket) => {
   })
   user.getSocketId(data.reciever).then(({ socketId }) => {
     console.log('Sending ', data.content, 'to', socketId)
-    const message = new Message(data._id, data.sender, data.reciever, data.content, data.status)
+    const message = new Message(data._id, data.sender, data.reciever, data.content, data.status, data.type)
     message.save().then(() => {
       socket.to(socketId).emit('chatMessage', data)
     }).catch(err => console.error(err))
@@ -126,6 +126,39 @@ const onDelivery = (data, socket) => {
     })
   }
 }
+const onFriendRequest = (data, sendAck, socket) => {
+  // const user = new User()
+  // user.saveFriendRequest(data,)
+  const user = new User()
+  data._id = Math.ceil(Math.random() * 1000000000000)
+  data.status = 1
+  sendAck({
+    _id: data._id,
+    status: data.status
+  })
+  user.getSocketId(data.reciever).then(({ socketId }) => {
+    console.log('Sending ', data.content, 'to', socketId)
+    const message = new Message(data._id, data.sender, data.reciever, data.content, data.status, data.type)
+    message.save().then(() => {
+      socket.to(socketId).emit('friendRequest', data)
+    }).catch(err => console.error(err))
+  }).catch(err => {
+    console.error(err)
+  })
+}
+const onAcceptRequest = (data, socket) => {
+  const chatUser = new ChatUser()
+  chatUser.addContacts(socket.userId, data.reciever).then().catch(err => console.error(err))
+  socket.to(data.reciever).emit('newContact',
+    {
+      id: socket.userId,
+      chats: [
+
+      ],
+      name: socket.userId
+    }
+  )
+}
 const onGetChats = (data, socket) => {
   const sender = data.chatId
   const reciever = socket.userId
@@ -141,5 +174,7 @@ const onGetChats = (data, socket) => {
 exports.onDelivery = onDelivery
 exports.onChatMessage = onChatMessage
 exports.onGetChats = onGetChats
+exports.onFriendRequest = onFriendRequest
+exports.onAcceptRequest = onAcceptRequest
 exports.onInitialConnection = onInitialConnection
 exports.socketsAuth = Auth
