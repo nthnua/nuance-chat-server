@@ -1,7 +1,7 @@
 const getDB = require('../util/db').getDB
 
 class User {
-  constructor (username, password, realName, age, email) {
+  constructor (username, password, realName, age, email, verificationCode, verified = false) {
     this.username = username
     this.password = password
     this.sessions = []
@@ -9,6 +9,8 @@ class User {
     this.realName = realName
     this.age = age
     this.email = email
+    this.verificationCode = verificationCode
+    this.verified = verified
   }
 
   save () {
@@ -114,6 +116,28 @@ class User {
         realName: 1
       }
     })
+  }
+
+  getVerificationCode (userId) {
+    const db = getDB()
+    return db.collection('users').findOne({
+      username: { $eq: userId }
+    }, {
+      projection: {
+        _id: 0,
+        verificationCode: 1
+      }
+    })
+  }
+
+  setVerification (userId, verificStatus) {
+    const db = getDB()
+    return db.collection('users').updateOne({
+      username: { $eq: userId }
+    }, {
+      $set: { verified: verificStatus }
+    }
+    )
   }
 
   // saveFriendRequest (userId, req) {

@@ -8,7 +8,7 @@ const lounge = require('./controllers/lounge').lounge
 const auth = require('./controllers/auth').auth
 const mongoConnect = require('./util/db').mongoConnect
 const { sockets } = require('./socket')
-const { logout } = require('./controllers/user')
+const { logout, verifymail } = require('./controllers/user')
 const app = express()
 const server = http.createServer(app)
 const { userValidationRules, validate } = require('./util/validator')
@@ -24,6 +24,7 @@ app.use(express.json())
 
 app.post('/api/login', login)
 app.post('/api/signup', userValidationRules(), validate, signup)
+app.get('/api/verifymail', verifymail)
 app.get('/api/lounge', auth, lounge)
 // app.post('/api/lounge', auth, setSocketId)
 // app.get('/api/chats/:id', auth, getChats)
