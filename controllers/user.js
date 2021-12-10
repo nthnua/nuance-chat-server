@@ -58,7 +58,7 @@ const Login = (req, res, next) => {
 const Signup = (req, res, next) => {
   const username = req.body.username
   const password = req.body.password
-  const verifId = randomBytes(100).toString('base64')
+  const verifId = randomBytes(100).toString('hex')
 
   const saltRounds = 10
   bcrypt.hash(password, saltRounds).then((hash) => {
@@ -97,15 +97,13 @@ const Logout = (req, res, next) => {
 }
 const VerifyMail = (req, res, next) => {
   const verifUserId = req.query.userId || ''
-  const verifCode = req.verifId || ''
-
+  const verifCode = req.query.verifId || ''
+  const redirectUrl = `${process.env.FRONTEND_ADDRESS}/login?emailVerified=true`
   const user = new User()
   user.getVerificationCode(verifUserId).then(({ verificationCode }) => {
     if (verificationCode === verifCode) {
       user.setVerification(verifUserId, true)
-      res.status(200).json({
-        msg: 'Email verified... Thank you :)'
-      })
+      res.redirect(redirectUrl)
     } else {
       res.status(400).json({
         msg: 'Invalid id or code!'
