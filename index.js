@@ -29,6 +29,9 @@ app.get('/api/lounge', auth, lounge)
 // app.post('/api/lounge', auth, setSocketId)
 // app.get('/api/chats/:id', auth, getChats)
 app.post('/api/logout', auth, logout)
+app.use('/', (req, res) => {
+  res.redirect(process.env.FRONTEND_ADDRESS)
+})
 
 mongoConnect(client => {
   let port = process.env.PORT
