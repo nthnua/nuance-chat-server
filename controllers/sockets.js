@@ -55,23 +55,7 @@ const onInitialConnection = (socket) => {
   const onInitAck = (ackData) => {
     console.log('Acked at ', ackData)
     const user = new User()
-    user.setSocketId(socket.id, socket.userId).then(() => {
-      // const message = new Message()
-      // message.getUndeliveredMessages(socket.userId).forEach((message) => {
-      //   socket.emit('chatMessage', message)
-      // })
-      // // Send delivery reports too
-      // // Delivery reports are best effort
-      // // Here it is guaranteed to deliver but when reporting immidiately after msg delivery it is not
-      // message.getDeliveredButNotAckdMsgs(socket.userId).forEach((fetchedMessage) => {
-      //   socket.emit('messageDelivery', {
-      //     _id: fetchedMessage._id,
-      //     status: 2
-      //   }, (ackdData) => {
-      //     message.updateStatus(fetchedMessage._id, ackdData.status).then().catch(err => console.error(err))
-      //   })
-      // })
-    }).catch(err => console.error(err))
+    user.setSocketId(socket.id, socket.userId).catch(err => console.error(err))
   }
   const chatUser = new ChatUser(socket.userId)
   chatUser.getContacts().then(contacts => {
