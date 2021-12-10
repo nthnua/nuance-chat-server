@@ -1,10 +1,11 @@
 const { getDB } = require('../util/db')
 
 class ChatUser {
-  constructor (id, onlineStatus = false, contacts = []) {
+  constructor (id, onlineStatus = false, contacts = [], randomState = 0) {
     this._id = id
     this.onlineStatus = onlineStatus
     this.contacts = contacts
+    this.randomState = randomState
   }
 
   save () {
@@ -47,12 +48,30 @@ class ChatUser {
       }
     }).then(data => {
       const updContacts = [...data.contacts, contact]
-      return db.collection('users').updateOne({
-        username: { $eq: userId }
+      return db.collection('chatUsers').updateOne({
+        _id: { $eq: userId }
       }, {
         $set: { contacts: updContacts }
       }
       )
+    })
+  }
+
+  getRandomUser () {
+    const db = getDB()
+    return db.mycoll.aggregate([
+      { $match: { randomState: 1 } },
+      { $sample: { size: 1 } }
+    ])
+  }
+
+  setRandomState (userId, randomState = 0) {
+    const db = getDB()
+    return db.collection('chatUsers').updateOne({
+      _id: { $eq: userId }
+    },
+    {
+      $set: { randomState }
     })
   }
 }
