@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 const { createHash } = require('crypto')
+const { validationResult } = require('express-validator')
 
 const Login = (req, res, next) => {
   const tokenSecret = process.env.AUTH_TOKEN_SECRET
@@ -55,6 +56,10 @@ const Login = (req, res, next) => {
 }
 
 const Signup = (req, res, next) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
   const username = req.body.username
   const password = req.body.password
   const saltRounds = 10
