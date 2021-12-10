@@ -35,5 +35,25 @@ class ChatUser {
       }
     })
   }
+
+  addContacts (userId, contact) {
+    const db = getDB()
+    return db.collection.findOne({
+      _id: { $eq: userId }
+    }, {
+      projection: {
+        _id: 0,
+        contacts: 1
+      }
+    }).then(data => {
+      const updContacts = [...data.contacts, contact]
+      return db.collection('users').updateOne({
+        username: { $eq: userId }
+      }, {
+        $set: { contacts: updContacts }
+      }
+      )
+    })
+  }
 }
 module.exports = ChatUser

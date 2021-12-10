@@ -1,10 +1,11 @@
 const getDB = require('../util/db').getDB
 class Message {
-  constructor (_id, sender, reciever, content, status) {
+  constructor (_id, sender, reciever, content, status, type) {
     this._id = _id
     this.sender = sender
     this.reciever = reciever
     this.time = Date.now()
+    this.type = type
     this.content = content
     this.status = status
   }
