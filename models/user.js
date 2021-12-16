@@ -140,6 +140,20 @@ class User {
     )
   }
 
+  getUsers (userId) {
+    const db = getDB()
+    return db.collection('users').find(
+      {
+        username: { $eq: userId }
+      },
+      {
+        _id: 0,
+        username: 1,
+        realName: 1
+      }
+    ).limit(15).sort({ realName: 1 })
+  }
+
   // saveFriendRequest (userId, req) {
   //   const db = getDB()
   //   return db.collection('users').findOne({

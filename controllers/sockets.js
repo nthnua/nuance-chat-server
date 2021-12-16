@@ -165,11 +165,23 @@ const onGetChats = (data, socket) => {
   ).catch(err => console.log(err))
 }
 
-exports.onDelivery = onDelivery
-exports.onChatMessage = onChatMessage
-exports.onGetChats = onGetChats
-exports.onFriendRequest = onFriendRequest
-exports.onAcceptFriendRequest = onAcceptFriendRequest
-exports.onInitialLoadComplete = onInitialLoadComplete
-exports.onInitialConnection = onInitialConnection
-exports.socketsAuth = Auth
+const onSearchContact = (data, socket) => {
+  const { searchQuery } = data
+  new User().getUsers(searchQuery).toArray().then((users) => {
+    socket.emit('searchResults', {
+      searchResults: users
+    })
+  })
+}
+
+module.exports = {
+  onDelivery,
+  onChatMessage,
+  onGetChats,
+  onFriendRequest,
+  onAcceptFriendRequest,
+  onInitialLoadComplete,
+  onInitialConnection,
+  onSearchContact,
+  Auth
+}
