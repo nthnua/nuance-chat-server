@@ -1,17 +1,17 @@
 const express = require('express')
 const cors = require('cors')
 const http = require('http')
-require('dotenv').config()
-const login = require('./controllers/user').login
-const signup = require('./controllers/user').signup
-const lounge = require('./controllers/lounge').lounge
 const auth = require('./controllers/auth').auth
-const mongoConnect = require('./util/db').mongoConnect
+const { mongoConnect } = require('./util/db')
 const { sockets } = require('./socket')
-const { logout, verifymail } = require('./controllers/user')
+const { Login, Signup, VerifyMail, Logout } = require('./controllers/user')
+const { userValidationRules, validate } = require('./util/validator')
+const { Lounge } = require('./controllers/lounge')
+
+require('dotenv').config()
+
 const app = express()
 const server = http.createServer(app)
-const { userValidationRules, validate } = require('./util/validator')
 
 // for socket.io
 sockets(server)
@@ -22,13 +22,13 @@ app.use(cors())
 // parse json body
 app.use(express.json())
 
-app.post('/api/login', login)
-app.post('/api/signup', userValidationRules(), validate, signup)
-app.get('/api/verifymail', verifymail)
-app.get('/api/lounge', auth, lounge)
+app.post('/api/login', Login)
+app.post('/api/signup', userValidationRules(), validate, Signup)
+app.get('/api/verifymail', VerifyMail)
+app.get('/api/lounge', auth, Lounge)
 // app.post('/api/lounge', auth, setSocketId)
 // app.get('/api/chats/:id', auth, getChats)
-app.post('/api/logout', auth, logout)
+app.post('/api/logout', auth, Logout)
 app.use('/', (req, res) => {
   res.redirect(process.env.FRONTEND_ADDRESS)
 })

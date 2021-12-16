@@ -1,4 +1,4 @@
-const getDB = require('../util/db').getDB
+const { getDB } = require('../util/db')
 
 class User {
   constructor (username, password, realName, age, email, verificationCode, verified = false) {

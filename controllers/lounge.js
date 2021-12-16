@@ -74,5 +74,9 @@ const getChats = (req, res, next) => {
 // }
 
 // exports.setSocketId = setSocketId
+module.exports = {
+  Lounge,
+  getChats
+}
 exports.getChats = getChats
 exports.lounge = Lounge

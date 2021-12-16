@@ -17,5 +17,7 @@ const getDB = () => {
   throw new Error('DB not found!')
 }
 
-exports.mongoConnect = mongoConnect
-exports.getDB = getDB
+module.exports = {
+  mongoConnect,
+  getDB
+}

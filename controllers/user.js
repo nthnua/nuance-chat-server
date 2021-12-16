@@ -113,7 +113,9 @@ const VerifyMail = (req, res, next) => {
     }
   })
 }
-exports.logout = Logout
-exports.signup = Signup
-exports.login = Login
-exports.verifymail = VerifyMail
+module.exports = {
+  Logout,
+  Signup,
+  Login,
+  VerifyMail
+}
