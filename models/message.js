@@ -1,4 +1,4 @@
-const getDB = require('../util/db').getDB
+const { getDB } = require('../util/db')
 class Message {
   constructor (_id, sender, reciever, content, status, type) {
     this._id = _id

@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 const { createHash, randomBytes } = require('crypto')
-const { sendSignupMail } = require('./email')
+const { sendSignupMail, sendPasswordResetLink, sendPasswordResetSuccessMail } = require('./email')
 
 const Login = (req, res, next) => {
   const tokenSecret = process.env.AUTH_TOKEN_SECRET
@@ -15,7 +15,7 @@ const Login = (req, res, next) => {
             userId: req.body.username
           }, tokenSecret, { expiresIn: '100d' })
           const sessionId = createHash('sha1').update(token).digest('base64')
-          user.addSession(sessionId, userCreds.sessions).then().catch(err => console.error(err))
+          user.addSession(req.body.username, sessionId, userCreds.sessions).then().catch(err => console.error(err))
           res.json({
             id: req.body.username,
             token
@@ -113,7 +113,75 @@ const VerifyMail = (req, res, next) => {
     }
   })
 }
-exports.logout = Logout
-exports.signup = Signup
-exports.login = Login
-exports.verifymail = VerifyMail
+const requestResetPassword = (req, res, next) => {
+  const tokenSecret = process.env.AUTH_TOKEN_SECRET
+  const user = new User()
+  user.doesExist(req.body.username).then(exists => {
+    if (exists) {
+      const token = jwt.sign({
+        userId: req.body.username
+      }, tokenSecret, { expiresIn: '10m' })
+      user.getSessions(req.body.username).then(({ sessions }) => {
+        const sessionId = createHash('sha1').update(token).digest('base64')
+        user.addSession(req.body.username, sessionId, sessions).then(() => {
+          sendPasswordResetLink(req.body.username, token)
+          res.json({
+            message: 'Success'
+          })
+        }).catch(err => console.error(err))
+      }).catch(err => console.error(err))
+    } else {
+      res.json({
+        message: 'Success'
+      })
+    }
+  })
+}
+const setNewPassword = (req, res, next) => {
+  const token = req.body.token
+  const secret = process.env.AUTH_TOKEN_SECRET
+  const user = new User()
+  const hash = createHash('sha1').update(token).digest('base64')
+  jwt.verify(token, secret, (err, decoded) => {
+    if (decoded) {
+      user.getSessions(decoded.userId).then(
+        result => {
+          if (result && result.sessions.includes(hash)) {
+            const username = decoded.userId
+            const password = req.body.password
+            const saltRounds = 10
+            bcrypt.hash(password, saltRounds).then((hash) => {
+              user.setNewPassword(username, hash).then(() => {
+                res.json({
+                  message: 'Success'
+                })
+                user.removeSession(req.session, req.user).catch(err => {
+                  console.error(err)
+                }
+                )
+                sendPasswordResetSuccessMail(decoded.userId)
+              }).catch(err => console.error(err))
+            }).catch(err => console.error(err))
+          } else {
+            res.status(401).json({
+              message: 'Token expired'
+            })
+          }
+        }).catch(err => console.log(err))
+    } else {
+      console.error(err)
+      res.status(401).json({
+        message: 'Token expired'
+      })
+    }
+  })
+}
+
+module.exports = {
+  Logout,
+  Signup,
+  Login,
+  VerifyMail,
+  requestResetPassword,
+  setNewPassword
+}

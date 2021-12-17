@@ -1,4 +1,4 @@
-const getDB = require('../util/db').getDB
+const { getDB } = require('../util/db')
 
 class User {
   constructor (username, password, realName, age, email, verificationCode, verified = false) {
@@ -29,6 +29,17 @@ class User {
     })
   }
 
+  doesExist (userId) {
+    const db = getDB()
+    return db.collection('users').findOne({
+      username: { $eq: userId }
+    }, {
+      projection: {
+        _id: 1
+      }
+    })
+  }
+
   getUserCredentials () {
     const db = getDB()
     return db.collection('users').findOne({
@@ -41,11 +52,11 @@ class User {
     })
   }
 
-  addSession (sessionId, prevSessions) {
+  addSession (username, sessionId, prevSessions) {
     const updatedSessions = [...prevSessions, sessionId]
     const db = getDB()
     return db.collection('users').updateOne({
-      username: { $eq: this.username }
+      username: { $eq: username }
     }, {
       $set: { sessions: updatedSessions }
     }
@@ -118,6 +129,18 @@ class User {
     })
   }
 
+  getEmail (userId) {
+    const db = getDB()
+    return db.collection('users').findOne({
+      username: { $eq: userId }
+    }, {
+      projection: {
+        _id: 0,
+        email: 1
+      }
+    })
+  }
+
   getVerificationCode (userId) {
     const db = getDB()
     return db.collection('users').findOne({
@@ -136,6 +159,30 @@ class User {
       username: { $eq: userId }
     }, {
       $set: { verified: verificStatus }
+    }
+    )
+  }
+
+  getUsers (userId) {
+    const db = getDB()
+    return db.collection('users').find(
+      {
+        username: { $eq: userId }
+      },
+      {
+        _id: 0,
+        username: 1,
+        realName: 1
+      }
+    ).limit(15).sort({ realName: 1 })
+  }
+
+  setNewPassword (userId, hash) {
+    const db = getDB()
+    return db.collection('users').updateOne({
+      username: { $eq: userId }
+    }, {
+      $set: { password: hash }
     }
     )
   }
