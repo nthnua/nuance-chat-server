@@ -4,7 +4,7 @@ const http = require('http')
 const auth = require('./controllers/auth').auth
 const { mongoConnect } = require('./util/db')
 const { sockets } = require('./socket')
-const { Login, Signup, VerifyMail, Logout } = require('./controllers/user')
+const { Login, Signup, VerifyMail, Logout, requestResetPassword, setNewPassword } = require('./controllers/user')
 const { userValidationRules, validate } = require('./util/validator')
 const { Lounge } = require('./controllers/lounge')
 
@@ -29,6 +29,8 @@ app.get('/api/lounge', auth, Lounge)
 // app.post('/api/lounge', auth, setSocketId)
 // app.get('/api/chats/:id', auth, getChats)
 app.post('/api/logout', auth, Logout)
+app.post('/api/resetpassword', requestResetPassword)
+app.get('/api/setnewpassword', setNewPassword)
 app.use('/', (req, res) => {
   res.redirect(process.env.FRONTEND_ADDRESS)
 })
