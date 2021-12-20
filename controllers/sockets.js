@@ -167,11 +167,13 @@ const onGetChats = (data, socket) => {
 
 const onSearchContact = (data, socket) => {
   const { searchQuery } = data
-  new User().getUsers(searchQuery).toArray().then((users) => {
-    socket.emit('searchResults', {
-      searchResults: users
+  if (searchQuery) {
+    new User().getUsers(searchQuery).toArray().then((users) => {
+      socket.emit('searchResults', {
+        searchResults: users
+      })
     })
-  })
+  }
 }
 
 module.exports = {

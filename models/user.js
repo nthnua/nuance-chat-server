@@ -167,7 +167,7 @@ class User {
     const db = getDB()
     return db.collection('users').find(
       {
-        username: { $eq: userId }
+        username: { $regex: `^${userId}`, $options: 'i' }
       },
       {
         _id: 0,
