@@ -170,9 +170,11 @@ class User {
         username: { $regex: `^${userId}`, $options: 'i' }
       },
       {
-        _id: 0,
-        username: 1,
-        realName: 1
+        projection: {
+          _id: 0,
+          username: 1,
+          realName: 1
+        }
       }
     ).limit(15).sort({ realName: 1 })
   }
