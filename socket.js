@@ -3,7 +3,7 @@ const User = require('./models/user')
 const sockets = (server) => {
   const { Server } = require('socket.io')
 
-  const { socketsAuth, onChatMessage, onDelivery, onInitialConnection, onGetChats, onFriendRequest, onInitialLoadComplete, onAcceptFriendRequest, onSearchContact } = require('./controllers/sockets')
+  const { onChatMessage, onDelivery, onInitialConnection, onGetChats, onFriendRequest, onInitialLoadComplete, onAcceptFriendRequest, onSearchContact, Auth } = require('./controllers/sockets')
   const io = new Server(server, {
     cors: {
       origin: '*',
@@ -11,7 +11,7 @@ const sockets = (server) => {
     }
   })
   // on first connection check if user is authorised
-  io.use(socketsAuth)
+  io.use(Auth)
 
   io.on('connection', socket => {
     const user = new User()
