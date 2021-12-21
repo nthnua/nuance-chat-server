@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken')
 const { createHash } = require('crypto')
 const User = require('../models/user')
 const Message = require('../models/message')
-const ChatUser = require('../models/chatUser')
 
 const Auth = (socket, next) => {
   const token = socket.handshake.auth.token
@@ -52,6 +51,9 @@ const onInitialLoadComplete = (socket) => {
       message.updateStatus(fetchedMessage._id, ackdData.status).then().catch(err => console.error(err))
     })
   })
+  // message.getFriendRequests(socket.userId).forEach((message) => {
+  //   socket.emit('chatMessage', message)
+  // })
 }
 // when the user connects or logs in
 const onInitialConnection = (socket) => {
@@ -60,8 +62,7 @@ const onInitialConnection = (socket) => {
     const user = new User()
     user.setSocketId(socket.id, socket.userId).catch(err => console.error(err))
   }
-  const chatUser = new ChatUser(socket.userId)
-  chatUser.getContacts().then(contacts => {
+  new User().getContacts(socket.userId).then(contacts => {
     if (contacts) {
       console.log('Sending contacts', contacts)
       socket.emit('initialContacts', contacts, onInitAck)
@@ -135,25 +136,42 @@ const onDelivery = (data, socket) => {
 // }
 
 const onAcceptFriendRequest = (data, socket) => {
-  const chatUser = new ChatUser()
   const user = new User()
   // when the recipient accepts the friend request
   // add the senders contact to recipient's contact list and vice versa then
   // send the the contact info of recipient to the sender
-  chatUser.addContacts(socket.userId, data.reciever).then(() => {
-    chatUser.addContacts(data.reciever, socket.userId).catch(err => { console.error(err) })
-    user.getName(socket.userId).then(({ realName }) => {
-      socket.to(data.reciever).emit('newContact',
-        {
-          id: socket.userId,
-          chats: [
+  const { requestId } = data.content
+  new Message().updateStatus(requestId, 2).catch(err => console.error(err))
+  user.getContacts(data.reciever).then(({ contacts }) => {
+    const updContactsReciver = [...contacts, {
+      id: data.sender,
+      chats: [
+      ],
+      name: data.sender
+    }]
+    user.getContacts(data.sender).then(({ contacts }) => {
+      const updContactsSender = [...contacts, {
+        id: data.reciever,
+        chats: [
+        ],
+        name: data.reciever
+      }]
+      user.addContacts(socket.userId, updContactsSender).then(() => {
+        user.addContacts(data.reciever, updContactsReciver).catch(err => { console.error(err) })
+        user.getName(socket.userId).then(({ realName }) => {
+          socket.to(data.reciever).emit('newContact',
+            {
+              id: socket.userId,
+              chats: [
 
-          ],
-          name: realName
-        }
-      )
-    })
-  }).catch(err => console.error(err))
+              ],
+              name: realName
+            }
+          )
+        })
+      }).catch(err => console.error(err))
+    }).catch(err => console.error(err))
+  })
 }
 // send messages in batch when requested by the client
 const onGetChats = (data, socket) => {

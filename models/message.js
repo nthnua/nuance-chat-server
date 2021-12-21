@@ -59,6 +59,14 @@ class Message {
       }
     ).limit(15).sort({ time: -1 })
   }
+
+  // getFriendRequests (reciever) {
+  //   const db = getDB()
+  //   return db.collection('messages').find({
+  //     reciever: { $eq: reciever },
+  //     status: { $eq: 1 }
+  //   })
+  // }
 }
 
 module.exports = Message

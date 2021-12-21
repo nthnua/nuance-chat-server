@@ -6,7 +6,6 @@ const { mongoConnect } = require('./util/db')
 const { sockets } = require('./socket')
 const { Login, Signup, VerifyMail, Logout, requestResetPassword, setNewPassword } = require('./controllers/user')
 const { userValidationRules, validate } = require('./util/validator')
-const { Lounge } = require('./controllers/lounge')
 
 require('dotenv').config()
 
@@ -25,8 +24,7 @@ app.use(express.json())
 app.post('/api/login', Login)
 app.post('/api/signup', userValidationRules(), validate, Signup)
 app.get('/api/verifymail', VerifyMail)
-app.get('/api/lounge', auth, Lounge)
-// app.post('/api/lounge', auth, setSocketId)
+
 // app.get('/api/chats/:id', auth, getChats)
 app.post('/api/logout', auth, Logout)
 app.post('/api/resetpassword', requestResetPassword)

@@ -1,7 +1,7 @@
 const { getDB } = require('../util/db')
 
 class User {
-  constructor (username, password, realName, age, email, verificationCode, verified = false) {
+  constructor (username, password, realName, age, email, verificationCode, verified = false, onlineStatus = false, contacts = [], randomState = 0) {
     this.username = username
     this.password = password
     this.sessions = []
@@ -11,6 +11,9 @@ class User {
     this.email = email
     this.verificationCode = verificationCode
     this.verified = verified
+    this.onlineStatus = onlineStatus
+    this.contacts = contacts
+    this.randomState = randomState
   }
 
   save () {
@@ -222,6 +225,57 @@ class User {
   //     console.error(err)
   //   })
   // }
+  getContacts (id) {
+    const db = getDB()
+    return db.collection('users').findOne({
+      username: { $eq: id }
+    }, {
+      projection: {
+        _id: 0,
+        contacts: 1
+      }
+    })
+  }
+
+  getOnlineStatus (id) {
+    const db = getDB()
+    return db.collection('users').findOne({
+      username: { $eq: id }
+    }, {
+      projection: {
+        _id: 0,
+        onlineStatus: 1
+      }
+    })
+  }
+
+  addContacts (userId, contacts) {
+    const db = getDB()
+    return db.collection('users').updateOne({
+      username: { $eq: userId }
+    }, {
+      $set: { contacts }
+    }
+    )
+  }
+
+  getRandomUser () {
+    const db = getDB()
+    return db.mycoll.aggregate([
+      { $match: { randomState: 1 } },
+      { $sample: { size: 1 } }
+    ])
+  }
+
+  setRandomState (userId, randomState = 0) {
+    const db = getDB()
+    return db.collection('users').updateOne({
+      username: { $eq: userId }
+    },
+    {
+      $set: { randomState }
+    })
+  }
 }
 
 module.exports = User
