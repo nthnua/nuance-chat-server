@@ -135,37 +135,53 @@ const onDelivery = (data, socket) => {
 //   })
 // }
 
-const onAcceptFriendRequest = (data, socket) => {
+const onAcceptOrRejectFriendRequest = (data, socket) => {
   const user = new User()
   // when the recipient accepts the friend request
   // add the senders contact to recipient's contact list and vice versa then
   // send the the contact info of recipient to the sender
-  const { requestId } = data.content
+  const { requestId, actionType } = data.content
+  if (actionType === 'reject') {
+    new Message().updateStatus(requestId, 0).catch(err => console.error(err))
+    return
+  }
   new Message().updateStatus(requestId, 2).catch(err => console.error(err))
-  user.getContacts(data.reciever).then(({ contacts }) => {
-    const updContactsReciver = [...contacts, {
-      id: data.sender,
-      chats: [
-      ],
-      name: data.sender
-    }]
-    user.getContacts(data.sender).then(({ contacts }) => {
+  user.getContacts(data.reciever).then(({ contacts, realName }) => {
+    const recieverRealName = realName
+    const recieverContacts = contacts
+    user.getContacts(data.sender).then(({ contacts, realName }) => {
+      const senderRealname = realName
       const updContactsSender = [...contacts, {
         id: data.reciever,
         chats: [
         ],
-        name: data.reciever
+        name: recieverRealName
+      }]
+      const updContactsReciver = [...recieverContacts, {
+        id: data.sender,
+        chats: [
+        ],
+        name: senderRealname
       }]
       user.addContacts(socket.userId, updContactsSender).then(() => {
         user.addContacts(data.reciever, updContactsReciver).catch(err => { console.error(err) })
-        user.getName(socket.userId).then(({ realName }) => {
-          socket.to(data.reciever).emit('newContact',
+        socket.emit('newContact',
+          {
+            id: data.reciever,
+            chats: [
+
+            ],
+            name: recieverRealName
+          }
+        )
+        user.getSocketId(data.reciever).then(({ socketId }) => {
+          socket.to(socketId).emit('newContact',
             {
               id: socket.userId,
               chats: [
 
               ],
-              name: realName
+              name: senderRealname
             }
           )
         })
@@ -210,7 +226,7 @@ module.exports = {
   onChatMessage,
   onGetChats,
   // onFriendRequest,
-  onAcceptFriendRequest,
+  onAcceptOrRejectFriendRequest,
   onInitialLoadComplete,
   onInitialConnection,
   onSearchContact,

@@ -7,10 +7,13 @@ const { sockets } = require('./socket')
 const { Login, Signup, VerifyMail, Logout, requestResetPassword, setNewPassword } = require('./controllers/user')
 const { userValidationRules, validate } = require('./util/validator')
 
+const helmet = require('helmet')
 require('dotenv').config()
 
 const app = express()
 const server = http.createServer(app)
+
+app.use(helmet())
 
 // for socket.io
 sockets(server)

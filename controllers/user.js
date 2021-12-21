@@ -15,11 +15,14 @@ const Login = (req, res, next) => {
             userId: req.body.username
           }, tokenSecret, { expiresIn: '100d' })
           const sessionId = createHash('sha1').update(token).digest('base64')
-          user.addSession(req.body.username, sessionId, userCreds.sessions).then().catch(err => console.error(err))
-          res.json({
-            id: req.body.username,
-            token
-          })
+          user.addSession(req.body.username, sessionId, userCreds.sessions).then(
+            () => {
+              res.json({
+                id: req.body.username,
+                token
+              })
+            }
+          ).catch(err => console.error(err))
         } else {
           res.status(401).json({
             message: 'Invalid username or password!'
