@@ -141,6 +141,18 @@ class User {
     })
   }
 
+  getProfile (userId) {
+    const db = getDB()
+    return db.collection('users').findOne({
+      username: { $eq: userId }
+    }, {
+      projection: {
+        _id: 0,
+        realName: 1
+      }
+    })
+  }
+
   getVerificationCode (userId) {
     const db = getDB()
     return db.collection('users').findOne({

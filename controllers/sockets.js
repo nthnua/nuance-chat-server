@@ -111,27 +111,28 @@ const onDelivery = (data, socket) => {
     })
   }
 }
-const onFriendRequest = (data, sendAck, socket) => {
-  // friend requests are special messages where,
-  // from and to represent the friend request's sender
-  // and recipient respectively and message is of type 'friendRequest'
-  const user = new User()
-  data._id = Math.ceil(Math.random() * 1000000000000)
-  data.status = 1
-  sendAck({
-    _id: data._id,
-    status: data.status
-  })
-  user.getSocketId(data.reciever).then(({ socketId }) => {
-    console.log('Sending ', data.content, 'to', socketId)
-    const message = new Message(data._id, data.sender, data.reciever, data.content, data.status, data.type)
-    message.save().then(() => {
-      socket.to(socketId).emit('friendRequest', data)
-    }).catch(err => console.error(err))
-  }).catch(err => {
-    console.error(err)
-  })
-}
+// const onFriendRequest = (data, sendAck, socket) => {
+//   // friend requests are special messages where,
+//   // from and to represent the friend request's sender
+//   // and recipient respectively and message is of type 'friendRequest'
+//   const user = new User()
+//   data._id = Math.ceil(Math.random() * 1000000000000)
+//   data.status = 1
+
+//   sendAck({
+//     _id: data._id,
+//     status: data.status
+//   })
+//   user.getSocketId(data.reciever).then(({ socketId }) => {
+//     console.log('Sending ', data.content, 'to', socketId)
+//     const message = new Message(data._id, data.sender, data.reciever, data.content, data.status, data.type)
+//     message.save().then(() => {
+//       socket.to(socketId).emit('friendRequest', data)
+//     }).catch(err => console.error(err))
+//   }).catch(err => {
+//     console.error(err)
+//   })
+// }
 
 const onAcceptFriendRequest = (data, socket) => {
   const chatUser = new ChatUser()
@@ -177,15 +178,24 @@ const onSearchContact = (data, socket) => {
     })
   }
 }
+const onProfileRequest = (data, socket) => {
+  const { username } = data
+  return new User().getProfile(username).then(({ realName }) => {
+    socket.emit('profileInfo', {
+      realName
+    })
+  }).catch(err => console.error(err))
+}
 
 module.exports = {
   onDelivery,
   onChatMessage,
   onGetChats,
-  onFriendRequest,
+  // onFriendRequest,
   onAcceptFriendRequest,
   onInitialLoadComplete,
   onInitialConnection,
   onSearchContact,
-  Auth
+  Auth,
+  onProfileRequest
 }

@@ -3,7 +3,7 @@ const User = require('./models/user')
 const sockets = (server) => {
   const { Server } = require('socket.io')
 
-  const { onChatMessage, onDelivery, onInitialConnection, onGetChats, onFriendRequest, onInitialLoadComplete, onAcceptFriendRequest, onSearchContact, Auth } = require('./controllers/sockets')
+  const { onChatMessage, onDelivery, onInitialConnection, onGetChats, onInitialLoadComplete, onAcceptFriendRequest, onSearchContact, Auth, onProfileRequest } = require('./controllers/sockets')
   const io = new Server(server, {
     cors: {
       origin: '*',
@@ -36,14 +36,17 @@ const sockets = (server) => {
       onGetChats(data, socket)
     })
     // friend requests are also treated as messages but with type: 'friendRequest'
-    socket.on('friendRequest', (data, sendAck) => {
-      onFriendRequest(data, socket)
-    })
+    // socket.on('friendRequest', (data, sendAck) => {
+    //   onFriendRequest(data, sendAck, socket)
+    // })
     socket.on('acceptFriendRequest', (data) => {
       onAcceptFriendRequest(data, socket)
     })
     socket.on('searchContact', (data) => {
       onSearchContact(data, socket)
+    })
+    socket.on('profileRequest', (data) => {
+      onProfileRequest(data, socket)
     })
     socket.on('disconnect', () => {
       console.log('User disconnected', socket.userId)
