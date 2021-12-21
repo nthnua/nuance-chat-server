@@ -3,7 +3,7 @@ const userValidationRules = () => {
   return [
     body('username').isAlphanumeric().trim(),
     body('realName').notEmpty(), body('age').isNumeric().toInt(), body('email').isEmail().normalizeEmail(),
-    body('password').isLength({ min: 5 })
+    body('password').isLength({ min: 5, max: 62 })
   ]
 }
 
