@@ -62,8 +62,10 @@ const onInitialConnection = (socket) => {
   }
   const chatUser = new ChatUser(socket.userId)
   chatUser.getContacts().then(contacts => {
-    console.log('Sending contacts', contacts)
-    socket.emit('initialContacts', contacts, onInitAck)
+    if (contacts) {
+      console.log('Sending contacts', contacts)
+      socket.emit('initialContacts', contacts, onInitAck)
+    }
   }).catch(err => console.error(err))
 }
 
