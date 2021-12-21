@@ -169,7 +169,7 @@ const onGetChats = (data, socket) => {
 
 const onSearchContact = (data, socket) => {
   const { searchQuery } = data
-  if (/^[a-z0-9]+$/i.test(searchQuery)) {
+  if (/^[a-z0-9_]+$/i.test(searchQuery)) {
     new User().getUsers(searchQuery).toArray().then((users) => {
       socket.emit('searchResults', {
         searchResults: users
