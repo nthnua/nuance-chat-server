@@ -105,8 +105,8 @@ const VerifyMail = (req, res, next) => {
   const verifCode = req.query.verifId || ''
   const redirectUrl = `${process.env.FRONTEND_ADDRESS}/login?emailVerified=true`
   const user = new User()
-  user.getVerificationCode(verifUserId).then(({ verificationCode }) => {
-    if (verificationCode === verifCode) {
+  user.getVerificationCode(verifUserId).then(result => {
+    if (result && result.verificationCode === verifCode) {
       user.setVerification(verifUserId, true)
       res.redirect(redirectUrl)
     } else {
@@ -114,7 +114,7 @@ const VerifyMail = (req, res, next) => {
         msg: 'Invalid id or code!'
       })
     }
-  })
+  }).catch(err => console.error(err))
 }
 const requestResetPassword = (req, res, next) => {
   const tokenSecret = process.env.AUTH_TOKEN_SECRET
@@ -138,7 +138,7 @@ const requestResetPassword = (req, res, next) => {
         message: 'Success'
       })
     }
-  })
+  }).catch(err => console.error(err))
 }
 const setNewPassword = (req, res, next) => {
   const token = req.body.token
