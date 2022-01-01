@@ -36,13 +36,14 @@ const sendPasswordResetLink = (userId, token) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY)
   const frontend = process.env.FRONTEND_ADDRESS
   const verificationLink = `${frontend}/setnewpassword?token=${token}`
-  return new User().getEmail(userId).then(({ email }) => {
-    console.log(`Sending password reset link to ${email}`)
-    const msg = {
-      to: email,
-      from: 'nuance.chat@outlook.com',
-      subject: 'Password reset requested',
-      html: `
+  return new User().getEmail(userId).then((result) => {
+    if (result && result.email) {
+      console.log(`Sending password reset link to ${result.email}`)
+      const msg = {
+        to: result.email,
+        from: 'nuance.chat@outlook.com',
+        subject: 'Password reset requested',
+        html: `
       <div>
       <h4>
       To continue with your password reset request
@@ -53,19 +54,21 @@ const sendPasswordResetLink = (userId, token) => {
       ${verificationLink}
       </div>
       `
+      }
+      return sgMail.send(msg)
     }
-    return sgMail.send(msg)
-  })
+  }).catch(err => console.error(err))
 }
 const sendPasswordResetSuccessMail = (userId) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-  return new User().getEmail(userId).then(({ email }) => {
-    console.log(`Sending password reset success notification to ${email}`)
-    const msg = {
-      to: email,
-      from: 'nuance.chat@outlook.com',
-      subject: 'Password reset successful',
-      html: `
+  return new User().getEmail(userId).then((result) => {
+    if (result && result.email) {
+      console.log(`Sending password reset success notification to ${result.email}`)
+      const msg = {
+        to: result.email,
+        from: 'nuance.chat@outlook.com',
+        subject: 'Password reset successful',
+        html: `
       <div>
       <h4>
       Your password for nuance.chat has been updated successfully.
@@ -74,9 +77,10 @@ const sendPasswordResetSuccessMail = (userId) => {
       If you didn't initiate the request please contact us at <a href='mailto:nuance.chat@outlook.com'>nuance.chat@outlook.com</a>
       </div>
       `
+      }
+      return sgMail.send(msg)
     }
-    return sgMail.send(msg)
-  })
+  }).catch(err => console.error(err))
 }
 module.exports = {
   sendSignupMail,
