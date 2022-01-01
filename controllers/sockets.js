@@ -80,11 +80,14 @@ const onChatMessage = (data, sendAck, socket) => {
     _id: data._id,
     status: data.status
   })
-  user.getSocketId(data.reciever).then(({ socketId }) => {
-    const message = new Message(data._id, data.sender, data.reciever, data.content, data.status, data.type)
-    message.save().then(() => {
-      socket.to(socketId).emit('chatMessage', data)
-    }).catch(err => console.error(err))
+  const message = new Message(data._id, data.sender, data.reciever, data.content, data.status, data.type)
+  user.getSocketId(data.reciever).then((result) => {
+    // if user is offline socket id will be ''
+    if (result && result.socketId) {
+      message.save().then(() => {
+        socket.to(result.socketId).emit('chatMessage', data)
+      }).catch(err => console.error(err))
+    }
   }).catch(err => {
     console.error(err)
   })
@@ -94,15 +97,15 @@ const onDelivery = (data, socket) => {
     const message = new Message()
     const user = new User()
     message.updateStatus(data._id, 2).then().catch(err => console.error(err))
-    user.getSocketId(data.sender).then(({ socketId }) => {
+    user.getSocketId(data.sender).then((result) => {
       // check if the socket is online if yes send delivery reports
-      if (socketId) {
+      if (result && result.socketId) {
         // if the user gets disconnected at this point
         // the delivery report is lost
         // as acknowledgements are not supported when broadcasting.
         // more work is required to guarantee message delivery report's delivery
         // status code 2 represents message has been sent to the recipient
-        socket.to(socketId).emit('messageDelivery', {
+        socket.to(result.socketId).emit('messageDelivery', {
           _id: data._id,
           status: 2
         })
@@ -142,52 +145,60 @@ const onAcceptOrRejectFriendRequest = (data, socket) => {
   // send the the contact info of recipient to the sender
   const { requestId, actionType } = data.content
   if (actionType === 'reject') {
+    // set request status 0 indicating it is rejected
     new Message().updateStatus(requestId, 0).catch(err => console.error(err))
     return
   }
   new Message().updateStatus(requestId, 2).catch(err => console.error(err))
-  user.getContacts(data.reciever).then(({ contacts, realName }) => {
-    const recieverRealName = realName
-    const recieverContacts = contacts
-    user.getContacts(data.sender).then(({ contacts, realName }) => {
-      const senderRealname = realName
-      const updContactsSender = [...contacts, {
-        id: data.reciever,
-        chats: [
-        ],
-        name: recieverRealName
-      }]
-      const updContactsReciver = [...recieverContacts, {
-        id: data.sender,
-        chats: [
-        ],
-        name: senderRealname
-      }]
-      user.addContacts(socket.userId, updContactsSender).then(() => {
-        user.addContacts(data.reciever, updContactsReciver).catch(err => { console.error(err) })
-        socket.emit('newContact',
-          {
+  user.getContacts(data.reciever).then((result) => {
+    // expected to refactor further
+    if (result) {
+      const recieverRealName = result.realName
+      const recieverContacts = result.contacts
+      user.getContacts(data.sender).then((result) => {
+        if (result) {
+          const senderRealname = result.realName
+          const updContactsSender = [...result.contacts, {
             id: data.reciever,
             chats: [
-
             ],
             name: recieverRealName
-          }
-        )
-        user.getSocketId(data.reciever).then(({ socketId }) => {
-          socket.to(socketId).emit('newContact',
-            {
-              id: socket.userId,
-              chats: [
+          }]
+          const updContactsReciver = [...recieverContacts, {
+            id: data.sender,
+            chats: [
+            ],
+            name: senderRealname
+          }]
+          user.addContacts(socket.userId, updContactsSender).then(() => {
+            user.addContacts(data.reciever, updContactsReciver).catch(err => { console.error(err) })
+            socket.emit('newContact',
+              {
+                id: data.reciever,
+                chats: [
 
-              ],
-              name: senderRealname
-            }
-          )
-        })
+                ],
+                name: recieverRealName
+              }
+            )
+            user.getSocketId(data.reciever).then((result) => {
+              if (result) {
+                socket.to(result.socketId).emit('newContact',
+                  {
+                    id: socket.userId,
+                    chats: [
+
+                    ],
+                    name: senderRealname
+                  }
+                )
+              }
+            })
+          }).catch(err => console.error(err))
+        }
       }).catch(err => console.error(err))
-    }).catch(err => console.error(err))
-  })
+    }
+  }).catch(err => console.error(err))
 }
 // send messages in batch when requested by the client
 const onGetChats = (data, socket) => {
