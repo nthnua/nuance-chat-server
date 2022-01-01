@@ -76,13 +76,15 @@ class User {
         sessions: 1
       }
     }).then(userCreds => {
-      const updatedSessions = userCreds.sessions.filter(session => session !== sessionId)
-      return db.collection('users').updateOne({
-        username: { $eq: userId }
-      }, {
-        $set: { sessions: updatedSessions }
+      if (userCreds) {
+        const updatedSessions = userCreds.sessions.filter(session => session !== sessionId)
+        return db.collection('users').updateOne({
+          username: { $eq: userId }
+        }, {
+          $set: { sessions: updatedSessions }
+        }
+        )
       }
-      )
     }).catch(err => console.error(err))
   }
 
