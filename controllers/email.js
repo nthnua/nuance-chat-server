@@ -11,7 +11,7 @@ const sendSignupMail = (recieverMail, recieverId, verifId) => {
   const verificationLink = `${host}/api/verifymail?userId=${recieverId}&verifId=${verifId}`
   const msg = {
     to: recieverMail,
-    from: 'nuance.chat@outlook.com',
+    from: process.env.EMAIL_SENDER,
     subject: 'Welcome to nuance',
     html: `
     <div>
@@ -41,7 +41,7 @@ const sendPasswordResetLink = (userId, token) => {
       console.log(`Sending password reset link to ${result.email}`)
       const msg = {
         to: result.email,
-        from: 'nuance.chat@outlook.com',
+        from: process.env.EMAIL_SENDER,
         subject: 'Password reset requested',
         html: `
       <div>
@@ -66,7 +66,7 @@ const sendPasswordResetSuccessMail = (userId) => {
       console.log(`Sending password reset success notification to ${result.email}`)
       const msg = {
         to: result.email,
-        from: 'nuance.chat@outlook.com',
+        from: process.env.EMAIL_SENDER,
         subject: 'Password reset successful',
         html: `
       <div>
