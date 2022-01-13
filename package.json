@@ -23,7 +23,8 @@
   "homepage": "https://github.com/znapci/rinsme-server#readme",
   "devDependencies": {
     "cors": "^2.8.5",
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.12",
+    "standard": "^16.0.4"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.6.0",
