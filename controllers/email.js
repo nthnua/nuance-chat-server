@@ -15,11 +15,12 @@ const sendSignupMail = (recieverMail, recieverId, verifId) => {
     subject: 'Welcome to nuance',
     html: `
     <div>
-    <h1>
-    Thank you for signing up!
-    </h1>
+    <h3>
+    Hello 👋 ${recieverId}, we heartly welcome you to nuance.<br/>
+    </h3>
     <br/>
     <h4>
+    Thank you for signing up!<br/>
     Please verify your email by clicking the link below.
     <br/>
     <a href=${verificationLink}>click here</a>
