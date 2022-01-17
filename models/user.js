@@ -1,7 +1,7 @@
 const { getDB } = require('../util/db')
 
 class User {
-  constructor (username, password, realName, age, email, verificationCode, verified = false, onlineStatus = false, contacts = [], randomState = 0) {
+  constructor (username, password, realName, age, email, image, verificationCode, verified = false, onlineStatus = false, contacts = [], randomState = 0) {
     this.username = username
     this.password = password
     this.sessions = []
@@ -14,6 +14,7 @@ class User {
     this.onlineStatus = onlineStatus
     this.contacts = contacts
     this.randomState = randomState
+    this.image = image
   }
 
   save () {
