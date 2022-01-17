@@ -182,7 +182,8 @@ const onAcceptOrRejectFriendRequest = (data, socket) => {
                 chats: [
 
                 ],
-                name: recieverRealName
+                name: recieverRealName,
+                image: recieverImage
               }
             )
             user.getSocketId(data.reciever).then((result) => {
@@ -193,7 +194,8 @@ const onAcceptOrRejectFriendRequest = (data, socket) => {
                     chats: [
 
                     ],
-                    name: senderRealname
+                    name: senderRealname,
+                    image: senderImage
                   }
                 )
               }
