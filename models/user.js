@@ -236,7 +236,8 @@ class User {
       projection: {
         _id: 0,
         contacts: 1,
-        realName: 1
+        realName: 1,
+        image: 1
       }
     })
   }

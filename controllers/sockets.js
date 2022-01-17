@@ -154,21 +154,25 @@ const onAcceptOrRejectFriendRequest = (data, socket) => {
     // expected to refactor further
     if (result) {
       const recieverRealName = result.realName
+      const recieverImage = result.image
       const recieverContacts = result.contacts
       user.getContacts(data.sender).then((result) => {
         if (result) {
           const senderRealname = result.realName
+          const senderImage = result.image
           const updContactsSender = [...result.contacts, {
             id: data.reciever,
             chats: [
             ],
-            name: recieverRealName
+            name: recieverRealName,
+            image: recieverImage
           }]
           const updContactsReciver = [...recieverContacts, {
             id: data.sender,
             chats: [
             ],
-            name: senderRealname
+            name: senderRealname,
+            image: senderImage
           }]
           user.addContacts(socket.userId, updContactsSender).then(() => {
             user.addContacts(data.reciever, updContactsReciver).catch(err => { console.error(err) })
