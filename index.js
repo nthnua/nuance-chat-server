@@ -22,7 +22,7 @@ sockets(server)
 app.use(cors())
 
 // parse json body
-app.use(express.json())
+app.use(express.json({ limit: '500kb' }))
 
 app.post('/api/login', Login)
 app.post('/api/signup', userValidationRules(), validate, Signup)

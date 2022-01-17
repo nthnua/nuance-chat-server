@@ -65,7 +65,7 @@ const Signup = (req, res, next) => {
 
   const saltRounds = 10
   bcrypt.hash(password, saltRounds).then((hash) => {
-    const user = new User(username, hash, req.body.realName, req.body.age, req.body.email, verifId, false, false, [])
+    const user = new User(username, hash, req.body.realName, req.body.age, req.body.email, req.body.image, verifId, false, false, [])
     user.findMatch().then(matches => {
       if (matches) {
         console.log(matches)
