@@ -269,7 +269,6 @@ const onGetChats = (data, socket) => {
     .getMessages(sender, reciever)
     .toArray()
     .then(async (messages) => {
-      messages.reverse()
       const msgCount = await message.getMessageCount(sender, reciever)
       socket.emit('batchMessages', { messages, msgCount })
     })
