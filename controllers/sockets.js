@@ -103,22 +103,20 @@ const onChatMessage = (data, sendAck, socket) => {
     data.status,
     data.type
   )
-  user
-    .getSocketId(data.reciever)
-    .then((result) => {
-      // if user is offline socket id will be ''
-      if (result && result.socketId) {
-        message
-          .save()
-          .then(() => {
+  message
+    .save().then(() => {
+      user
+        .getSocketId(data.reciever)
+        .then((result) => {
+          // if user is offline socket id will be ''
+          if (result && result.socketId) {
             socket.to(result.socketId).emit('chatMessage', data)
-          })
-          .catch((err) => console.error(err))
-      }
-    })
-    .catch((err) => {
-      console.error(err)
-    })
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+    }).catch(err => console.error(err))
 }
 const onLoadChatPart = async (data, socket) => {
   console.error('chatpart', data)
