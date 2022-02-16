@@ -63,6 +63,29 @@ class Message {
       .sort({ time: -1 })
   }
 
+  getMessageCount (sender, reciever) {
+    const db = getDB()
+    return db.collection('messages').count({
+      $and: [
+        {
+          $or: [
+            {
+              sender: { $eq: sender },
+              reciever: { $eq: reciever }
+            },
+            {
+              sender: { $eq: reciever },
+              reciever: { $eq: sender }
+            }
+          ]
+        },
+        {
+          type: { $ne: 'friendRequest' }
+        }
+      ]
+    })
+  }
+
   getPartialMessages (sender, reciever, limit, skip) {
     const db = getDB()
     return db
