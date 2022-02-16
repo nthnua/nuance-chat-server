@@ -17,11 +17,13 @@ class Message {
 
   updateStatus (_id, status) {
     const db = getDB()
-    return db.collection('messages').updateOne({
-      _id: { $eq: _id }
-    }, {
-      $set: { status: status }
-    }
+    return db.collection('messages').updateOne(
+      {
+        _id: { $eq: _id }
+      },
+      {
+        $set: { status: status }
+      }
     )
   }
 
@@ -43,21 +45,43 @@ class Message {
 
   getMessages (sender, reciever) {
     const db = getDB()
-    return db.collection('messages').find(
-      {
-        $or: [{
-          sender: { $eq: sender },
-          reciever: { $eq: reciever }
-
-        },
-        {
-          sender: { $eq: reciever },
-          reciever: { $eq: sender }
-
-        }
+    return db
+      .collection('messages')
+      .find({
+        $or: [
+          {
+            sender: { $eq: sender },
+            reciever: { $eq: reciever }
+          },
+          {
+            sender: { $eq: reciever },
+            reciever: { $eq: sender }
+          }
         ]
-      }
-    ).limit(15).sort({ time: -1 })
+      })
+      .limit(15)
+      .sort({ time: -1 })
+  }
+
+  getPartialMessages (sender, reciever, limit, skip) {
+    const db = getDB()
+    return db
+      .collection('messages')
+      .find({
+        $or: [
+          {
+            sender: { $eq: sender },
+            reciever: { $eq: reciever }
+          },
+          {
+            sender: { $eq: reciever },
+            reciever: { $eq: sender }
+          }
+        ]
+      })
+      .limit(limit)
+      .sort({ time: -1 })
+      .skip(skip)
   }
 
   // getFriendRequests (reciever) {

@@ -3,7 +3,18 @@ const User = require('./models/user')
 const sockets = (server) => {
   const { Server } = require('socket.io')
 
-  const { onChatMessage, onDelivery, onInitialConnection, onGetChats, onInitialLoadComplete, onAcceptOrRejectFriendRequest, onSearchContact, Auth, onProfileRequest } = require('./controllers/sockets')
+  const {
+    onChatMessage,
+    onDelivery,
+    onInitialConnection,
+    onGetChats,
+    onInitialLoadComplete,
+    onAcceptOrRejectFriendRequest,
+    onSearchContact,
+    Auth,
+    onProfileRequest,
+    onLoadChatPart
+  } = require('./controllers/sockets')
   const io = new Server(server, {
     cors: {
       origin: '*',
@@ -13,7 +24,7 @@ const sockets = (server) => {
   // on first connection check if user is authorised
   io.use(Auth)
 
-  io.on('connection', socket => {
+  io.on('connection', (socket) => {
     const user = new User()
     // socket.on('initialConnection', () => {
     //   onInitialConnection(socket)
@@ -34,6 +45,9 @@ const sockets = (server) => {
     })
     socket.on('getChats', (data) => {
       onGetChats(data, socket)
+    })
+    socket.on('loadChatPart', (data) => {
+      onLoadChatPart(data, socket)
     })
     // friend requests are also treated as messages but with type: 'friendRequest'
     // socket.on('friendRequest', (data, sendAck) => {
