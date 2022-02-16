@@ -19,7 +19,6 @@ const Auth = (socket, next) => {
         .getSessions(decoded.userId)
         .then((result) => {
           if (result && result.sessions.includes(hash)) {
-            console.log('req authed')
             socket.userId = decoded.userId
             return next()
           } else {
@@ -68,7 +67,6 @@ const onInitialLoadComplete = (socket) => {
 // when the user connects or logs in
 const onInitialConnection = (socket) => {
   const onInitAck = (ackData) => {
-    console.log('Acked at ', ackData)
     const user = new User()
     user
       .setSocketId(socket.id, socket.userId)
@@ -78,7 +76,6 @@ const onInitialConnection = (socket) => {
     .getContacts(socket.userId)
     .then((contacts) => {
       if (contacts) {
-        console.log('Sending contacts', contacts)
         socket.emit('initialContacts', contacts, onInitAck)
       }
     })
@@ -119,7 +116,6 @@ const onChatMessage = (data, sendAck, socket) => {
     }).catch(err => console.error(err))
 }
 const onLoadChatPart = async (data, socket) => {
-  console.error('chatpart', data)
   const message = new Message()
   const messages = await message
     .getPartialMessages(data.sender, data.reciever, 20, data.currentCount)
