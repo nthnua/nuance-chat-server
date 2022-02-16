@@ -18,7 +18,9 @@ class User {
 
   save () {
     const db = getDB()
-    return db.collection('users').insertOne(this)
+    return db.collection('users').insertOne(this, {
+      writeConcern: { w: 'majority', wtimeout: 5000 }
+    })
   }
 
   findMatch () {
