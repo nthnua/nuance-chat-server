@@ -48,14 +48,21 @@ class Message {
     return db
       .collection('messages')
       .find({
-        $or: [
+        $and: [
           {
-            sender: { $eq: sender },
-            reciever: { $eq: reciever }
+            $or: [
+              {
+                sender: { $eq: sender },
+                reciever: { $eq: reciever }
+              },
+              {
+                sender: { $eq: reciever },
+                reciever: { $eq: sender }
+              }
+            ]
           },
           {
-            sender: { $eq: reciever },
-            reciever: { $eq: sender }
+            type: { $ne: 'friendRequest' }
           }
         ]
       })
@@ -91,14 +98,21 @@ class Message {
     return db
       .collection('messages')
       .find({
-        $or: [
+        $and: [
           {
-            sender: { $eq: sender },
-            reciever: { $eq: reciever }
+            $or: [
+              {
+                sender: { $eq: sender },
+                reciever: { $eq: reciever }
+              },
+              {
+                sender: { $eq: reciever },
+                reciever: { $eq: sender }
+              }
+            ]
           },
           {
-            sender: { $eq: reciever },
-            reciever: { $eq: sender }
+            type: { $ne: 'friendRequest' }
           }
         ]
       })
