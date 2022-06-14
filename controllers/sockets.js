@@ -186,73 +186,76 @@ const onAcceptOrRejectFriendRequest = (data, socket) => {
   if (actionType === 'reject') {
     // set request status 0 indicating it is rejected
     new Message().updateStatus(requestId, 0).catch((err) => console.error(err))
-    return
   }
-  new Message().updateStatus(requestId, 2).catch((err) => console.error(err))
-  user
-    .getContacts(data.reciever)
-    .then((result) => {
-      // expected to refactor further
-      if (result) {
-        const recieverRealName = result.realName
-        const recieverImage = result.image
-        const recieverContacts = result.contacts
-        user
-          .getContacts(data.sender)
-          .then((result) => {
-            if (result) {
-              const senderRealname = result.realName
-              const senderImage = result.image
-              const updContactsSender = [
-                ...result.contacts,
-                {
-                  id: data.reciever,
-                  chats: [],
-                  name: recieverRealName,
-                  image: recieverImage
-                }
-              ]
-              const updContactsReciver = [
-                ...recieverContacts,
-                {
-                  id: data.sender,
-                  chats: [],
-                  name: senderRealname,
-                  image: senderImage
-                }
-              ]
-              user
-                .addContacts(socket.userId, updContactsSender)
-                .then(() => {
-                  user
-                    .addContacts(data.reciever, updContactsReciver)
-                    .catch((err) => {
-                      console.error(err)
-                    })
-                  socket.emit('newContact', {
-                    id: data.reciever,
-                    chats: [],
-                    name: recieverRealName,
-                    image: recieverImage
-                  })
-                  user.getSocketId(data.reciever).then((result) => {
-                    if (result) {
-                      socket.to(result.socketId).emit('newContact', {
-                        id: socket.userId,
-                        chats: [],
-                        name: senderRealname,
-                        image: senderImage
-                      })
+  else {
+    new Message().updateStatus(requestId, 2).catch((err) => console.error(err))
+    user
+      .getContacts(data.reciever)
+      .then((result) => {
+        // expected to refactor further
+        if (result) {
+          const recieverRealName = result.realName
+          const recieverImage = result.image
+          const recieverContacts = result.contacts
+          user
+            .getContacts(data.sender)
+            .then((result) => {
+              if (result) {
+                if (!result.contacts.some(contact => contact.id === data.reciever) && !recieverContacts.some(contact => contact.id === data.sender)) {
+                  const senderRealname = result.realName
+                  const senderImage = result.image
+                  const updContactsSender = [
+                    ...result.contacts,
+                    {
+                      id: data.reciever,
+                      chats: [],
+                      name: recieverRealName,
+                      image: recieverImage
                     }
-                  })
-                })
-                .catch((err) => console.error(err))
-            }
-          })
-          .catch((err) => console.error(err))
-      }
-    })
-    .catch((err) => console.error(err))
+                  ]
+                  const updContactsReciver = [
+                    ...recieverContacts,
+                    {
+                      id: data.sender,
+                      chats: [],
+                      name: senderRealname,
+                      image: senderImage
+                    }
+                  ]
+                  user
+                    .addContacts(socket.userId, updContactsSender)
+                    .then(() => {
+                      user
+                        .addContacts(data.reciever, updContactsReciver)
+                        .catch((err) => {
+                          console.error(err)
+                        })
+                      socket.emit('newContact', {
+                        id: data.reciever,
+                        chats: [],
+                        name: recieverRealName,
+                        image: recieverImage
+                      })
+                      user.getSocketId(data.reciever).then((result) => {
+                        if (result) {
+                          socket.to(result.socketId).emit('newContact', {
+                            id: socket.userId,
+                            chats: [],
+                            name: senderRealname,
+                            image: senderImage
+                          })
+                        }
+                      })
+                    })
+                    .catch((err) => console.error(err))
+                }
+              }
+            })
+            .catch((err) => console.error(err))
+        }
+      })
+      .catch((err) => console.error(err))
+  }
 }
 // send messages in batch when requested by the client
 const onGetChats = (data, socket) => {
